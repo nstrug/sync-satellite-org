@@ -1,0 +1,5 @@
+nailgun
+ansible>=2.3
+six
+pytz
+netaddr

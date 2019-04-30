@@ -1,0 +1,25 @@
+---
+- hosts: tests
+  gather_facts: false
+  tasks:
+  - name: Load server config
+    include_vars:
+      file: server_vars.yml
+  - include: tasks/global_parameter.yml
+    vars:
+      global_parameter_state: present
+      expected_change: true
+  - include: tasks/global_parameter.yml
+    vars:
+      global_parameter_state: present
+      expected_change: false
+  - include: tasks/global_parameter.yml
+    vars:
+      global_parameter_state: present
+      global_parameter_value: forty-two
+      expected_change: true
+  - include: tasks/global_parameter.yml
+    vars:
+      global_parameter_state: absent
+      expected_change: true
+...

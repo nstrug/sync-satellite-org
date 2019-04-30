@@ -1,0 +1,96 @@
+interactions:
+- request:
+    body: !!python/unicode '{}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['2']
+      User-Agent: [python-requests/2.19.1]
+      content-type: [application/json]
+    method: GET
+    uri: https://foreman.example.com/katello/api/v2/ping
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA43PPQqAMAwF4N1TSGYXRRC9TAlasdg/mtRFendtN6c6hTy+8Ejb3kCMHAkWcCd0
+        QDJcapXvfoOP2uf5FVsMyMpZYXI0TJC6IgVGPmq8HzNf0W5aemVrfP7oXw3lZHdBGrSCkU6qvgAp
+        peYBkFZQlgsBAAA=
+    headers:
+      apipie-checksum: [96d85e8c4306b45b12132dcec2243d18d47f3d81]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['125']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Tue, 16 Oct 2018 07:37:11 GMT']
+      etag: [W/"1c1b499b3d2989ee1e62fde0750d5a08-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.19.0]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [_session_id=30aca795425248f4e766705e3f362d9e; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [8ec1ea86-51ff-40eb-85b3-8bbeca80b610]
+      x-runtime: ['0.111774']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"per_page": 4294967296, "search": "major=\"1\",name=\"famos\",minor=\"2\""}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['76']
+      User-Agent: [python-requests/2.19.1]
+      content-type: [application/json]
+    method: GET
+    uri: https://foreman.example.com/api/v2/operatingsystems
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAzWLywrCMBBF9/mKMOssbCiVCH6JFZlqfJFHmSQLKf13x6Tu7jmXswgpIceMDg5S
+        qx+lMv3FrooZH5aha2Dpsolem94Me22G1lmk65M9eHxHOo7QjaACesvzjj4mRv8K9dIjQKsiZW4W
+        3kzTh3cozqnGkW6WNsVmrQnZVFxOrE9nsYovAKiZnsMAAAA=
+    headers:
+      apipie-checksum: [96d85e8c4306b45b12132dcec2243d18d47f3d81]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['149']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Tue, 16 Oct 2018 07:37:11 GMT']
+      etag: [W/"048e42b6a550f19eeb31322425214f77-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.19.0]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [_session_id=4d3a8fc01ad1c8449a14684914192229; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [d99c7117-e42d-4847-b00f-784df7e3ad0b]
+      x-runtime: ['0.035686']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+version: 1
