@@ -5,10 +5,12 @@
     server_url: "{{ target_foreman_server_url }}"
     username: "{{ target_foreman_username }}"
     password: "{{ target_foreman_password }}"
-    name: "{ item.Name }}"
+    verify_ssl: "{{ foreman_verify_ssl }}"
+    name: "{{ item.Name }}"
     dns_proxy: "{{ ansible_fqdn }}"
     organizations:
       - [% foreman_organization %]
     locations: "{{ item.Locations | json_query('[*].Name') }}"
     state: present
   loop: [% domain_info %]
+  delegate_to: localhost

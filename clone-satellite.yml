@@ -1,14 +1,8 @@
 ---
 - name: Generate Satellite Clone Playbook
-  hosts: sat62.oldstables
+  hosts: all
   vars:
-    foreman_username: "admin"
-    foreman_password: "r3dhat00"
-    foreman_server_url: "https://sat62.oldstables"
-    foreman_verify_ssl: false
-    foreman_organization: "Default_Organization"
     foreman_connect_string: "--output json -s {{ foreman_server_url }} -u {{ foreman_username }} -p {{ foreman_password }}"
-    output_dir: "/tmp/clone-satellite"
 
   tasks:
     - name: Create output dir
@@ -120,9 +114,8 @@
       tags: repos
     - debug:
         var: repos
-        verbosity: 1
+        verbosity: 2
       tags: repos
-
 
     - name: Determine content views
       command: "hammer {{ foreman_connect_string }} content-view list --organization \"{{ foreman_organization }}\""
@@ -139,7 +132,7 @@
       tags: cv
     - debug:
         var: content_views
-        verbosity: 1
+        verbosity: 2
       tags: cv
     - name: Map repos
       include_tasks: map_repos.yml
@@ -148,18 +141,73 @@
         loop_var: cv
       tags: cv
 
-    - fail:
-      when: true
-      tags: cv
-
-
     - name: Determine activation keys
       command: "hammer {{ foreman_connect_string }} activation-key list --organization \"{{ foreman_organization }}\""
       changed_when: false
-      register: activation_keys
+      register: r
+    - debug:
+        var: r
+        verbosity: 2
+      tags: ak
+    - name: Parse activation keys
+      set_fact:
+        activation_keys: "{{ r.stdout | from_json }}"
+      tags: ak
     - debug:
         var: activation_keys
+      tags: ak
+    - name: Extract activation key info
+      command: "hammer {{ foreman_connect_string}} activation-key info --id {{ item.ID }} --organization \"{{ foreman_organization }}\""
+      changed_when: false
+      register: r
+      loop: "{{ activation_keys }}"
+    - set_fact:
+        activation_key_info: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+    - debug:
+        var: activation_key_info
         verbosity: 2
+    - name: Extract activation key subscriptions
+      command: "hammer {{ foreman_connect_string}} activation-key subscriptions --id {{ item.ID }} --organization \"{{ foreman_organization }}\""
+      changed_when: false
+      register: r
+      loop: "{{ activation_keys }}"
+    - debug:
+        var: r
+        verbosity: 2
+    - set_fact:
+        activation_key_subscriptions: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+    - debug:
+        var: activation_key_subscriptions
+        verbosity: 2
+    - name: Create activation keys
+      template:
+        src: "templates/create-activation-keys.yml.j2"
+        dest: "{{ output_dir }}/create-activation-keys.yml"
+
+    - name: Create Master Synchronise Satellite Playbook
+      template:
+        src: "templates/synchronise-satellite.yml.j2"
+        dest: "{{ output_dir }}/synchronise-satellite.yml"
+
+    - name: Create Inventory
+      template:
+        src: "templates/inventory.j2"
+        dest: "{{ output_dir }}/inventory"
+
+    - name: Copy Foreman Ansible modules
+      copy:
+        src: foreman-ansible-modules
+        dest: "{{ output_dir }}"
+
+    - name: copy over ansible.cfg
+      copy:
+        src: "templates/ansible.cfg"
+        dest: "{{ output_dir }}/ansible.cfg"
+
+    - fail:
+      when: true
+
+
 
     - name: Determine partition tables
       command: "hammer {{ foreman_connect_string }} partition-table list --organization \"{{ foreman_organization }}\""
