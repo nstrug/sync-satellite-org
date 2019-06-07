@@ -4,7 +4,7 @@ PDB_PATH=$(shell find /usr/lib{,64} -type f -executable -name pdb.py 2> /dev/nul
 ifeq ($(PDB_PATH),)
 	PDB_PATH=$(shell which pdb)
 endif
-MODULE_PATH=modules/$(MODULE).py
+MODULE_PATH=plugins/modules/$(MODULE).py
 DEBUG_DATA_PATH=test/debug_data/$(DATA).json
 DEBUG_OPTIONS=-m $(MODULE_PATH) -a @$(DEBUG_DATA_PATH) -D $(PDB_PATH)
 
@@ -23,7 +23,7 @@ help:
 	@echo "  record_<test>  to (re-)record the server answers for a specific test"
 
 lint:
-	pycodestyle --ignore=E402,E722 --max-line-length=160 modules test module_utils
+	pycodestyle --ignore=E402,E722 --max-line-length=160 plugins/modules plugins/module_utils test
 
 test:
 	pytest $(TEST)
@@ -36,7 +36,7 @@ record_%: FORCE
 	pytest 'test/test_crud.py::test_crud[$*]' --record
 
 clean_%: FORCE
-	ansible-playbook --tags teardown -i test/inventory/hosts 'test/test_playbooks/$*.yml'
+	ansible-playbook --tags teardown,cleanup -i test/inventory/hosts 'test/test_playbooks/$*.yml'
 
 sanity:
 	ansible-playbook test/extras/sanity.yml
@@ -56,9 +56,12 @@ debug-setup: .tmp/ansible
 test-setup: test/test_playbooks/server_vars.yml
 	pip install --upgrade pip
 	pip install -r requirements-dev.txt
-	pip install -r https://raw.githubusercontent.com/ansible/ansible/devel/requirements.txt 
+	pip install -r https://raw.githubusercontent.com/ansible/ansible/devel/requirements.txt
 test/test_playbooks/server_vars.yml:
 	cp test/test_playbooks/server_vars.yml.example test/test_playbooks/server_vars.yml
+
+dist:
+	mazer build
 
 FORCE:
 
