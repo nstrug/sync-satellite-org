@@ -98,6 +98,9 @@
       template:
         src: "templates/create-lifecycle-environments.yml.j2"
         dest: "{{ output_dir }}/create-lifecycle-environments.yml"
+    - template:
+        src: "templates/create-lifecycle-environment.yml.j2"
+        dest: "{{ output_dir }}/create-lifecycle-environment.yml"
 
     - name: Lookup repos
       command: "hammer {{ foreman_connect_string }} repository list --organization \"{{ foreman_organization }}\""
@@ -195,7 +198,7 @@
         dest: "{{ output_dir }}/inventory"
 
     - name: Copy Foreman Ansible modules
-      copy:
+      synchronize:
         src: foreman-ansible-modules
         dest: "{{ output_dir }}"
 

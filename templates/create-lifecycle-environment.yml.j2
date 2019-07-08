@@ -1,0 +1,21 @@
+#jinja2:variable_start_string:'[%' , variable_end_string:'%]'
+
+- set_fact:
+    last_lifecycle_environment: true
+
+- set_fact:
+    le: "{{ inner }}"
+    last_lifecycle_environment: false
+  when: item.Prior == prior
+  loop: [% lifecycle_environments %]
+  loop_control:
+    loop_var: inner
+
+- command: >-
+    hammer lifecycle-environment create --name {{ le.Name }}
+    --organization Default_Organization --prior "{{ le.Prior }}"
+  when: not last_lifecycle_environment
+
+- set_fact:
+    prior: "{{ le.Name }}"
+
