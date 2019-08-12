@@ -6,7 +6,7 @@
     username: "{{ target_foreman_username }}"
     password: "{{ target_foreman_password }}"
     verify_ssl: "{{ foreman_verify_ssl }}"
-    name: "{{ item.Name }}"
+    name: "{{ item.name }}"
     organizations:
       - [% foreman_organization %]
     state: present

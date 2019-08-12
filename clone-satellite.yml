@@ -10,16 +10,20 @@
         state: "directory"
         path: "{{ output_dir }}"
 
-    - name: Determine locations
-      command: "hammer {{ foreman_connect_string }} location list --organization \"{{ foreman_organization }}\""
-      changed_when: false
+    - name: Determine location
+      foreman_search_facts:
+        username: "{{ foreman_username }}"
+        password: "{{ foreman_password }}"
+        server_url: "{{ foreman_server_url }}"
+        validate_certs: "{{ foreman_verify_ssl }}"
+        resource: locations
       register: r
+      delegate_to: localhost
     - debug:
         var: r
         verbosity: 2
-    - name: Parse Locations
-      set_fact:
-        locations: "{{ r.stdout | from_json }}"
+    - set_fact:
+        locations: "{{ r.resources }}"
     - debug:
         var: locations
         verbosity: 2
@@ -27,6 +31,42 @@
       template:
         src: "templates/create-locations.yml.j2"
         dest: "{{ output_dir }}/create-locations.yml"
+
+
+
+
+
+    - fail:
+      when: true
+
+
+    - name: Determine domains
+      foreman_search_facts:
+        username: "{{ foreman_username }}"
+        password: "{{ foreman_password }}"
+        server_url: "{{ foreman_server_url }}"
+        validate_certs: "{{ foreman_verify_ssl }}"
+        resource: domains
+      register: r
+      delegate_to: localhost
+    - debug:
+        var: r
+        verbosity: 2
+    - set_fact:
+        domains: "{{ r.resources }}"
+    - debug:
+        var: r
+        verbosity: 2
+    - name: Create domains
+      template:
+        src: "templates/create-domains.yml.j2"
+        dest: "{{ output_dir }}/create-domains.yml"
+    - fail:
+      when: true
+
+
+
+
 
     - name: Determine domains
       command: "hammer {{ foreman_connect_string}} domain list --organization \"{{ foreman_organization }}\""
@@ -206,9 +246,6 @@
       copy:
         src: "templates/ansible.cfg"
         dest: "{{ output_dir }}/ansible.cfg"
-
-    - fail:
-      when: true
 
 
 
