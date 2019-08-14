@@ -1,21 +1,26 @@
 ---
+
 - name: Determine lifecycle environments
-  command: "hammer {{ foreman_connect_string }} lifecycle-environment list --organization \"{{ foreman_organization }}\""
-  changed_when: false
+  foreman_search_facts:
+    username: "{{ foreman_username }}"
+    password: "{{ foreman_password }}"
+    server_url: "{{ foreman_server_url }}"
+    validate_certs: "{{ foreman_verify_ssl }}"
+    resource: lifecycle_environments
+    search: organization_id=1
   register: r
-- debug:
-    var: r
-    verbosity: 2
-- name: Parse lifecycle environments
-  set_fact:
-    lifecycle_environments: "{{ r.stdout | from_json }}"
+  delegate_to: localhost
+- set_fact:
+    lifecycle_environments: "{{ r.resources }}"
 - debug:
     var: lifecycle_environments
-    verbosity: 2
-- name: Create lifecycle environments
-  template:
-    src: "templates/create-lifecycle-environments.yml.j2"
-    dest: "{{ output_dir }}/create-lifecycle-environments.yml"
+    verbosity: 1
 - template:
     src: "templates/create-lifecycle-environment.yml.j2"
     dest: "{{ output_dir }}/create-lifecycle-environment.yml"
+- template:
+    src: "templates/create-lifecycle-environments.yml.j2"
+    dest: "{{ output_dir }}/create-lifecycle-environments.yml"
+
+- fail:
+  when: true
