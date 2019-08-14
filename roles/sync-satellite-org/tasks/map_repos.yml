@@ -1,21 +1,20 @@
 ---
 - set_fact:
     cv_lookup: []
-  tags: cv
-- name: Lookup repos for CV {{ cv.Name }}
+- name: Lookup repos for CV {{ cv.name }}
   set_fact:
-    repo: "{{ (repos | json_query(\"[?Id==`\" + item|string + \"`].Name\"))[0]|default(\"\") }}"
-    product: "{{ (repos | json_query(\"[?Id==`\" + item|string + \"`].Product\"))[0]|default(\"\") }}"
+    repo: "{{ (repositories|json_query(\"[?id==`\" + item|string + \"`].name\"))[0]|default(\"\") }}"
+    product: "{{ (repositories|json_query(\"[?id==`\" + item|string + \"`].product\"))[0]|default(\"\") }}"
     cv_lookup: "{{ cv_lookup + [ {\"Name\": repo, \"Product\": product} ] }}"
-  loop: "{{ cv['Repository IDs']}}"
-  tags: cv
+  loop: "{{ cv.repository_ids }}"
+
 
 - debug:
     var: cv_lookup
     verbosity: 2
   tags: cv
-- name: Write template to create CV {{ cv.Name }}
+- name: Write template to create CV {{ cv.name }}
   template:
     src: "templates/create-content-views.yml.j2"
-    dest: "{{ output_dir + \"/create-content-view-\" + cv.Name + \".yml\" }}"
+    dest: "{{ output_dir + \"/create-content-view-\" + cv.name|replace(' ','_') + \".yml\" }}"
   tags: cv

@@ -29,12 +29,12 @@
   delegate_to: localhost
 - debug:
     var: r
-    verbosity: 1
+    verbosity: 2
 - set_fact:
     repositories: "{{ r.resources }}"
 - debug:
     var: repositories
-    verbosity: 1  
+    verbosity: 2  
 
-- fail:
-  when: true
+# - fail:
+#   when: true
