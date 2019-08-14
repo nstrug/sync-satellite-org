@@ -1,24 +1,26 @@
 ---
+# - name: Determine content views
+#   command: "hammer {{ foreman_connect_string }} content-view list --organization \"{{ foreman_organization }}\""
+#   changed_when: false
+#   register: r
+#   tags: cv
+# - debug:
+#     var: r
+#     verbosity: 2
+#   tags: cv
+# - name: Parse content views
+#   set_fact:
+#     content_views: "{{ r.stdout | from_json }}"
+#   tags: cv
+# - debug:
+#     var: content_views
+#     verbosity: 2
+#   tags: cv
+# - name: Map repos
+#   include_tasks: map_repos.yml
+#   loop: "{{ content_views }}"
+#   loop_control:
+#     loop_var: cv
+#   tags: cv
+
 - name: Determine content views
-  command: "hammer {{ foreman_connect_string }} content-view list --organization \"{{ foreman_organization }}\""
-  changed_when: false
-  register: r
-  tags: cv
-- debug:
-    var: r
-    verbosity: 2
-  tags: cv
-- name: Parse content views
-  set_fact:
-    content_views: "{{ r.stdout | from_json }}"
-  tags: cv
-- debug:
-    var: content_views
-    verbosity: 2
-  tags: cv
-- name: Map repos
-  include_tasks: map_repos.yml
-  loop: "{{ content_views }}"
-  loop_control:
-    loop_var: cv
-  tags: cv
