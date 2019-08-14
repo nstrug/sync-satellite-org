@@ -1,0 +1,8 @@
+---
+- name: Determine partition tables
+  command: "hammer {{ foreman_connect_string }} partition-table list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: partition_tables
+- debug:
+    var: partition_tables
+    verbosity: 2

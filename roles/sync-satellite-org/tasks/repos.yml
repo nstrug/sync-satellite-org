@@ -1,0 +1,18 @@
+---
+- name: Lookup repos
+  command: "hammer {{ foreman_connect_string }} repository list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  tags: repos
+- debug:
+    var: r
+    verbosity: 2
+  tags: repos
+- name: Parse repos
+  set_fact:
+    repos: "{{ r.stdout | from_json }}"
+  tags: repos
+- debug:
+    var: repos
+    verbosity: 2
+  tags: repos

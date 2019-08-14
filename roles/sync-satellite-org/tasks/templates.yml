@@ -1,0 +1,8 @@
+---
+- name: Determine templates
+  command: "hammer {{ foreman_connect_string }} template list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: templates
+- debug:
+    var: templates
+    verbosity: 2

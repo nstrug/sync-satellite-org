@@ -1,0 +1,8 @@
+---
+- name: Determine operating systems
+  command: "hammer {{ foreman_connect_string }} os list"
+  changed_when: false
+  register: os
+- debug:
+    var: os
+    verbosity: 2

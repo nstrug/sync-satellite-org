@@ -1,0 +1,43 @@
+---
+- name: Determine activation keys
+  command: "hammer {{ foreman_connect_string }} activation-key list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+- debug:
+    var: r
+    verbosity: 2
+  tags: ak
+- name: Parse activation keys
+  set_fact:
+    activation_keys: "{{ r.stdout | from_json }}"
+  tags: ak
+- debug:
+    var: activation_keys
+  tags: ak
+- name: Extract activation key info
+  command: "hammer {{ foreman_connect_string}} activation-key info --id {{ item.ID }} --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  loop: "{{ activation_keys }}"
+- set_fact:
+    activation_key_info: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+- debug:
+    var: activation_key_info
+    verbosity: 2
+- name: Extract activation key subscriptions
+  command: "hammer {{ foreman_connect_string}} activation-key subscriptions --id {{ item.ID }} --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  loop: "{{ activation_keys }}"
+- debug:
+    var: r
+    verbosity: 2
+- set_fact:
+    activation_key_subscriptions: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+- debug:
+    var: activation_key_subscriptions
+    verbosity: 2
+- name: Create activation keys
+  template:
+    src: "templates/create-activation-keys.yml.j2"
+    dest: "{{ output_dir }}/create-activation-keys.yml"

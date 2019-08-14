@@ -1,0 +1,8 @@
+---
+- name: Determine hostgroups
+  command: "hammer {{ foreman_connect_string }} hostgroup list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: hostgroups
+- debug:
+    var: hostgroups
+    verbosity: 2
