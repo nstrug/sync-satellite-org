@@ -14,7 +14,7 @@
     lifecycle_environments: "{{ r.resources }}"
 - debug:
     var: lifecycle_environments
-    verbosity: 1
+    verbosity: 2
 - template:
     src: "templates/create-lifecycle-environment.yml.j2"
     dest: "{{ output_dir }}/create-lifecycle-environment.yml"
@@ -22,5 +22,5 @@
     src: "templates/create-lifecycle-environments.yml.j2"
     dest: "{{ output_dir }}/create-lifecycle-environments.yml"
 
-- fail:
-  when: true
+# - fail:
+#   when: true
