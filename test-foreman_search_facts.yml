@@ -1,0 +1,20 @@
+---
+- name: Generate Satellite Clone Playbook
+  hosts: all
+  vars:
+    foreman_connect_string: "--output json -s {{ foreman_server_url }} -u {{ foreman_username }} -p {{ foreman_password }}"
+
+  tasks:
+
+    - name: search facts
+      foreman_search_facts:
+        username: "{{ foreman_username }}"
+        password: "{{ foreman_password }}"
+        server_url: "{{ foreman_server_url }}"
+        validate_certs: "{{ foreman_verify_ssl }}"
+        resource: foo
+      register: r
+      delegate_to: localhost
+
+    - debug:
+        var: r

@@ -1,0 +1,3 @@
+---
+output_dir="/tmp/clone-satellite"
+foreman_verify_ssl=true

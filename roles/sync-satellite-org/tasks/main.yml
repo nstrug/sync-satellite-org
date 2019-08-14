@@ -1,0 +1,365 @@
+---
+
+- name: Create output dir
+  file:
+    state: "directory"
+    path: "{{ output_dir }}"
+
+- name: Determine location
+  foreman_search_facts:
+    username: "{{ foreman_username }}"
+    password: "{{ foreman_password }}"
+    server_url: "{{ foreman_server_url }}"
+    validate_certs: "{{ foreman_verify_ssl }}"
+    resource: locations
+    # search: organization={{foreman_organization}}
+  register: r
+  delegate_to: localhost
+- debug:
+    var: r
+    verbosity: 2
+- set_fact:
+    locations: "{{ r.resources }}"
+- debug:
+    var: locations
+    verbosity: 2
+
+- name: Create locations
+  template:
+    src: "templates/create-locations.yml.j2"
+    dest: "{{ output_dir }}/create-locations.yml"
+
+# - fail:
+#   when: true
+
+- name: Determine domains
+  foreman_search_facts:
+    username: "{{ foreman_username }}"
+    password: "{{ foreman_password }}"
+    server_url: "{{ foreman_server_url }}"
+    validate_certs: "{{ foreman_verify_ssl }}"
+    resource: domains
+    search: organization={{foreman_organization}}
+  register: r
+  delegate_to: localhost
+- set_fact:
+    domains: "{{ r.resources }}"
+- debug:
+    var: domains
+    verbosity: 2
+
+# - fail:
+#   when: true
+
+# Use hammer as foreman_search_facts still does not retain location association
+- name: Extract domain info
+  command: "hammer {{ foreman_connect_string }} domain info --id {{ item.id }} --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  loop: "{{ domains }}"
+- set_fact:
+    domain_info: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+- debug:
+    var: domain_info
+    verbosity: 2
+    
+- name: Create domains
+  template:
+    src: "templates/create-domains.yml.j2"
+    dest: "{{ output_dir }}/create-domains.yml"
+
+# - fail:
+#   when: true
+
+- name: Determine subnets
+  foreman_search_facts:
+    username: "{{ foreman_username }}"
+    password: "{{ foreman_password }}"
+    server_url: "{{ foreman_server_url }}"
+    validate_certs: "{{ foreman_verify_ssl }}"
+    resource: subnets
+    search: organization={{foreman_organization}}
+  register: r
+  delegate_to: localhost
+- set_fact:
+    subnets: "{{ r.resources }}"
+- debug:
+    var: subnets
+    verbosity: 2
+
+# - fail:
+#   when: true
+
+# We still have to do this with hammer as foreman_search_facts does not return domain or location association  
+- name: Extract subnet info
+  command: "hammer {{ foreman_connect_string}} subnet info --id {{ item.id }} --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  loop: "{{ subnets }}"
+- set_fact:
+    subnet_info: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+- debug:
+    var: subnet_info
+    verbosity: 2
+
+# - fail:
+#   when: true
+
+- name: Create subnets
+  template:
+    src: "templates/create-subnets.yml.j2"
+    dest: "{{ output_dir }}/create-subnets.yml"
+
+- fail:
+  when: true
+
+- name: Determine subnets
+  command: "hammer {{ foreman_connect_string }} subnet list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+- debug:
+    var: r
+    verbosity: 2
+- name: Parse subnets
+  set_fact:
+    subnets: "{{ r.stdout | from_json }}"
+- name: Extract subnet info
+  command: "hammer {{ foreman_connect_string}} subnet info --id {{ item.Id }} --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  loop: "{{ subnets }}"
+- set_fact:
+    subnet_info: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+- debug:
+    var: subnet_info
+    verbosity: 2
+- name: Create subnets
+  template:
+    src: "templates/create-subnets.yml.j2"
+    dest: "{{ output_dir }}/create-subnets.yml"
+
+- name: Determine lifecycle environments
+  command: "hammer {{ foreman_connect_string }} lifecycle-environment list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+- debug:
+    var: r
+    verbosity: 2
+- name: Parse lifecycle environments
+  set_fact:
+    lifecycle_environments: "{{ r.stdout | from_json }}"
+- debug:
+    var: lifecycle_environments
+    verbosity: 2
+- name: Create lifecycle environments
+  template:
+    src: "templates/create-lifecycle-environments.yml.j2"
+    dest: "{{ output_dir }}/create-lifecycle-environments.yml"
+- template:
+    src: "templates/create-lifecycle-environment.yml.j2"
+    dest: "{{ output_dir }}/create-lifecycle-environment.yml"
+
+- name: Lookup repos
+  command: "hammer {{ foreman_connect_string }} repository list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  tags: repos
+- debug:
+    var: r
+    verbosity: 2
+  tags: repos
+- name: Parse repos
+  set_fact:
+    repos: "{{ r.stdout | from_json }}"
+  tags: repos
+- debug:
+    var: repos
+    verbosity: 2
+  tags: repos
+
+- name: Determine content views
+  command: "hammer {{ foreman_connect_string }} content-view list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  tags: cv
+- debug:
+    var: r
+    verbosity: 2
+  tags: cv
+- name: Parse content views
+  set_fact:
+    content_views: "{{ r.stdout | from_json }}"
+  tags: cv
+- debug:
+    var: content_views
+    verbosity: 2
+  tags: cv
+- name: Map repos
+  include_tasks: map_repos.yml
+  loop: "{{ content_views }}"
+  loop_control:
+    loop_var: cv
+  tags: cv
+
+- name: Determine activation keys
+  command: "hammer {{ foreman_connect_string }} activation-key list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+- debug:
+    var: r
+    verbosity: 2
+  tags: ak
+- name: Parse activation keys
+  set_fact:
+    activation_keys: "{{ r.stdout | from_json }}"
+  tags: ak
+- debug:
+    var: activation_keys
+  tags: ak
+- name: Extract activation key info
+  command: "hammer {{ foreman_connect_string}} activation-key info --id {{ item.ID }} --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  loop: "{{ activation_keys }}"
+- set_fact:
+    activation_key_info: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+- debug:
+    var: activation_key_info
+    verbosity: 2
+- name: Extract activation key subscriptions
+  command: "hammer {{ foreman_connect_string}} activation-key subscriptions --id {{ item.ID }} --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: r
+  loop: "{{ activation_keys }}"
+- debug:
+    var: r
+    verbosity: 2
+- set_fact:
+    activation_key_subscriptions: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
+- debug:
+    var: activation_key_subscriptions
+    verbosity: 2
+- name: Create activation keys
+  template:
+    src: "templates/create-activation-keys.yml.j2"
+    dest: "{{ output_dir }}/create-activation-keys.yml"
+
+- name: Create Master Synchronise Satellite Playbook
+  template:
+    src: "templates/synchronise-satellite.yml.j2"
+    dest: "{{ output_dir }}/synchronise-satellite.yml"
+
+- name: Create Inventory
+  template:
+    src: "templates/inventory.j2"
+    dest: "{{ output_dir }}/inventory"
+
+- name: Copy Foreman Ansible modules
+  synchronize:
+    src: foreman-ansible-modules
+    dest: "{{ output_dir }}"
+
+- name: copy over ansible.cfg
+  copy:
+    src: "templates/ansible.cfg"
+    dest: "{{ output_dir }}/ansible.cfg"
+
+
+
+- name: Determine partition tables
+  command: "hammer {{ foreman_connect_string }} partition-table list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: partition_tables
+- debug:
+    var: partition_tables
+    verbosity: 2
+
+- name: Determine templates
+  command: "hammer {{ foreman_connect_string }} template list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: templates
+- debug:
+    var: templates
+    verbosity: 2
+
+- name: Determine operating systems
+  command: "hammer {{ foreman_connect_string }} os list"
+  changed_when: false
+  register: os
+- debug:
+    var: os
+    verbosity: 2
+
+- name: Determine hostgroups
+  command: "hammer {{ foreman_connect_string }} hostgroup list --organization \"{{ foreman_organization }}\""
+  changed_when: false
+  register: hostgroups
+- debug:
+    var: hostgroups
+    verbosity: 2
+
+
+
+#      foreman_location:
+#        name: foo
+#        username: "{{ foreman_username }}"
+#        password: "{{ foreman_password }}"
+#        server_url: "{{ foreman_server_url }}"
+#        verify_ssl: "{{ foreman_verify_ssl }}"
+#      register: output
+#    - debug:
+#        var: output
+
+
+# Locations
+# Determine locations
+
+
+# Write template fragment
+
+
+
+
+# Domains
+
+
+# Subnets
+
+
+
+# Lifecycle environments
+
+
+
+
+# Content Views
+
+
+
+
+
+# Activation keys
+
+
+
+
+
+# Partition tables
+
+
+
+
+
+# Templates
+
+
+
+
+# Operating system defaults
+
+
+
+# Hostgroups
+
+
+# Master include
