@@ -90,7 +90,7 @@
         subnets: "{{ r.resources }}"
     - debug:
         var: subnets
-        verbosity: 1
+        verbosity: 2
 
     # - fail:
     #   when: true
@@ -105,7 +105,7 @@
         subnet_info: "{{ r.results | json_query('[*].stdout') | map('from_json') | list }}"
     - debug:
         var: subnet_info
-        verbosity: 1
+        verbosity: 2
 
     # - fail:
     #   when: true
