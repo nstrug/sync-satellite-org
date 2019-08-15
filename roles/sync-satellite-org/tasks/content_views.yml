@@ -35,17 +35,17 @@
   delegate_to: localhost
 - debug:
     var: r
-    verbosity: 1
+    verbosity: 2
 - set_fact:
     content_views: "{{ r.resources }}"
 - debug:
     var: content_views
-    verbosity: 1 
+    verbosity: 2 
 - name: Map repos
   include_tasks: map_repos.yml
   loop: "{{ content_views }}"
   loop_control:
     loop_var: cv
 
-- fail:
-  when: true
+# - fail:
+#   when: true
