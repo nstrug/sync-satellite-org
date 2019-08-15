@@ -41,3 +41,26 @@
   template:
     src: "templates/create-activation-keys.yml.j2"
     dest: "{{ output_dir }}/create-activation-keys.yml"
+
+# - name: Determine activation keys
+#   foreman_search_facts:
+#     username: "{{ foreman_username }}"
+#     password: "{{ foreman_password }}"
+#     server_url: "{{ foreman_server_url }}"
+#     validate_certs: "{{ foreman_verify_ssl }}"
+#     resource: activation_keys
+#     # search: organization_id=1
+#     search: organization_id = 1
+#   register: r
+#   delegate_to: localhost
+# - debug:
+#     var: r
+#     verbosity: 1
+# - set_fact:
+#     content_views: "{{ r.resources }}"
+# - debug:
+#     var: activation_key
+#     verbosity: 1 
+
+# - fail:
+#     when: true
