@@ -23,12 +23,10 @@ module: foreman_installation_medium
 short_description: Manage Foreman Installation Medium using Foreman API
 description:
   - Create and Delete Foreman Installation Medium using Foreman API
-version_added: "2.5"
 author:
   - "Manuel Bonk(@manuelbonk) ATIX AG"
 requirements:
-  - "nailgun >= 0.16.0"
-  - "ansible >= 2.3"
+  - apypie
 options:
   name:
     description:
@@ -65,24 +63,11 @@ options:
       - Windows
   path:
     description: Path to the installation medium
-  server_url:
-    description: foreman url
-    required: true
-  username:
-    description: foreman username
-    required: true
-  password:
-    description: foreman user password
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description: verify ssl connection when communicating with foreman
-    default: true
-    type: bool
   state:
     description: installation medium presence
     default: present
     choices: ["present", "absent"]
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -99,100 +84,69 @@ EXAMPLES = '''
     server_url: "https://foreman.example.com"
     username: "admin"
     password: "secret"
-    validate_certs: False
     state: present
 '''
 
 RETURN = ''' # '''
 
-try:
-    from ansible.module_utils.ansible_nailgun_cement import (
-        find_entities,
-        find_installation_medium,
-        find_locations,
-        find_organizations,
-        find_operating_systems_by_title,
-        naildown_entity_state,
-        sanitize_entity_dict,
-    )
-
-    from nailgun.entities import (
-        Media,
-    )
-except ImportError:
-    pass
-
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
-
-
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'locations': 'location',
-    'name': 'name',
-    'operatingsystems': 'operatingsystem',
-    'organizations': 'organization',
-    'os_family': 'os_family',
-    'path': 'path_',
-}
+from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
 
 
 def main():
-    module = ForemanEntityAnsibleModule(
-        argument_spec=dict(
+    module = ForemanEntityApypieAnsibleModule(
+        entity_spec=dict(
             name=dict(required=True),
-            locations=dict(type='list'),
-            organizations=dict(type='list'),
-            operatingsystems=dict(type='list'),
+            locations=dict(type='entity_list', flat_name='location_ids'),
+            organizations=dict(type='entity_list', flat_name='organization_ids'),
+            operatingsystems=dict(type='entity_list', flat_name='operatingsystem_ids'),
             os_family=dict(),
             path=dict(),
         ),
-        supports_check_mode=True,
     )
 
-    (medium_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
-    name = medium_dict['name']
+    name = entity_dict['name']
 
     affects_multiple = name == '*'
     # sanitize user input, filter unuseful configuration combinations with 'name: *'
     if affects_multiple:
-        if state == 'present_with_defaults':
+        if module.state == 'present_with_defaults':
             module.fail_json(msg="'state: present_with_defaults' and 'name: *' cannot be used together")
-        if state == 'absent':
-            if list(medium_dict.keys()) != ['name']:
-                module.fail_json(msg='When deleting all installation media, there is no need to specify further parameters %s ' % medium_dict.keys())
+        if module.desired_absent:
+            if list(entity_dict.keys()) != ['name']:
+                module.fail_json(msg='When deleting all installation media, there is no need to specify further parameters %s ' % entity_dict.keys())
 
-    try:
-        if affects_multiple:
-            entities = find_entities(Media)
-        else:
-            entities = find_installation_medium(module, name=medium_dict['name'], failsafe=True)
-    except Exception as e:
-        module.fail_json(msg='Failed to find entity: %s ' % e)
+    if affects_multiple:
+        entities = module.list_resource('media')
+        if not module.desired_absent:  # not 'thin'
+            entities = [module.show_resource('media', entity['id']) for entity in entities]
+        if not entities:
+            # Nothing to do shortcut to exit
+            module.exit_json(changed=False)
+    else:
+        entity = module.find_resource_by_name('media', name=entity_dict['name'], failsafe=True)
 
-    if 'operatingsystems' in medium_dict:
-        medium_dict['operatingsystems'] = find_operating_systems_by_title(module, medium_dict['operatingsystems'])
-        if len(medium_dict['operatingsystems']) == 1 and 'os_family' not in medium_dict and entities is None:
-            medium_dict['os_family'] = medium_dict['operatingsystems'][0].family
+    if not module.desired_absent:
+        if 'operatingsystems' in entity_dict:
+            entity_dict['operatingsystems'] = module.find_operatingsystems(entity_dict['operatingsystems'], thin=True)
+            if not affects_multiple and len(entity_dict['operatingsystems']) == 1 and 'os_family' not in entity_dict and entity is None:
+                entity_dict['os_family'] = module.show_resource('operatingsystems', entity_dict['operatingsystems'][0]['id'])['family']
 
-    if 'locations' in medium_dict:
-        medium_dict['locations'] = find_locations(module, medium_dict['locations'])
+        if 'locations' in entity_dict:
+            entity_dict['locations'] = module.find_resources_by_title('locations', entity_dict['locations'], thin=True)
 
-    if 'organizations' in medium_dict:
-        medium_dict['organizations'] = find_organizations(module, medium_dict['organizations'])
-
-    medium_dict = sanitize_entity_dict(medium_dict, name_map)
+        if 'organizations' in entity_dict:
+            entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
     changed = False
     if not affects_multiple:
-        changed = naildown_entity_state(
-            Media, medium_dict, entities, state, module)
+        changed = module.ensure_entity_state('media', entity_dict, entity)
     else:
-        medium_dict.pop('name')
+        entity_dict.pop('name')
         for entity in entities:
-            changed |= naildown_entity_state(
-                Media, medium_dict, entity, state, module)
+            changed |= module.ensure_entity_state('media', entity_dict, entity)
 
     module.exit_json(changed=changed)
 

@@ -27,35 +27,12 @@ module: foreman_provisioning_template
 short_description: Manage Provisioning Template in Foreman
 description:
   - "Manage Foreman Provisioning Template"
-  - "Uses https://github.com/SatelliteQE/nailgun"
-  - "Uses ansible_nailgun_cement in /module_utils"
-version_added: "2.4"
 author:
   - "Bernhard Hopfenmueller (@Fobhep) ATIX AG"
   - "Matthias Dellweg (@mdellweg) ATIX AG"
 requirements:
-  - "nailgun >= 0.29.0"
-  - "ansible >= 2.3"
+  - apypie
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    required: false
-    default: true
-    type: bool
   audit_comment:
     description:
       - Content of the audit comment field
@@ -131,7 +108,7 @@ options:
       - absent
       - present
       - present_with_defaults
-
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -252,34 +229,16 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 
-try:
-    import os
-    from ansible.module_utils.foreman_helper import (
-        parse_template,
-        parse_template_from_file,
-    )
+import os
 
-    from nailgun.entities import (
-        ProvisioningTemplate,
-        TemplateKind,
-        Organization,
-        Location,
-    )
-
-    from ansible.module_utils.ansible_nailgun_cement import (
-        find_entities,
-        find_entities_by_name,
-        find_operating_system_by_title,
-        naildown_entity_state,
-        sanitize_entity_dict,
-    )
-except ImportError:
-    pass
-
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
+from ansible.module_utils.foreman_helper import (
+    ForemanEntityApypieAnsibleModule,
+    parse_template,
+    parse_template_from_file,
+)
 
 
-def find_template_kind(entity_dict, module):
+def find_template_kind(module, entity_dict):
     if 'kind' not in entity_dict:
         return entity_dict
 
@@ -287,33 +246,17 @@ def find_template_kind(entity_dict, module):
     if entity_dict['snippet']:
         entity_dict.pop('kind')
     else:
-        try:
-            entity_dict['kind'] = find_entities(
-                TemplateKind, name=entity_dict['kind'])[0]
-        except Exception as e:
-            module.fail_json(msg='Template kind not found!')
+        entity_dict['kind'] = module.find_resource_by_name('template_kinds', entity_dict['kind'], thin=True)
     return entity_dict
 
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'audit_comment': 'audit_comment',
-    'kind': 'template_kind',
-    'locations': 'location',
-    'locked': 'locked',
-    'name': 'name',
-    'organizations': 'organization',
-    'operatingsystems': 'operatingsystem',
-    'snippet': 'snippet',
-    'template': 'template',
-}
-# Missing parameters:
-# default
-
-
 def main():
-    module = ForemanEntityAnsibleModule(
+    module = ForemanEntityApypieAnsibleModule(
         argument_spec=dict(
+            file_name=dict(type='path'),
+            state=dict(default='present', choices=['absent', 'present_with_defaults', 'present']),
+        ),
+        entity_spec=dict(
             audit_comment=dict(),
             kind=dict(choices=[
                 'finish',
@@ -329,24 +272,21 @@ def main():
                 'snippet',
                 'user_data',
                 'ZTP',
-            ]),
+            ], type='entity', flat_name='template_kind_id'),
             template=dict(),
-            file_name=dict(type='path'),
-            locations=dict(type='list'),
+            locations=dict(type='entity_list', flat_name='location_ids'),
             locked=dict(type='bool'),
             name=dict(),
-            organizations=dict(type='list'),
-            operatingsystems=dict(type='list'),
-            state=dict(default='present', choices=['absent', 'present_with_defaults', 'present']),
+            organizations=dict(type='entity_list', flat_name='organization_ids'),
+            operatingsystems=dict(type='entity_list', flat_name='operatingsystem_ids'),
+            snippet=dict(type='invisible'),
         ),
-        supports_check_mode=True,
         mutually_exclusive=[
             ['file_name', 'template'],
         ],
         required_one_of=[
             ['name', 'file_name', 'template'],
         ],
-
     )
 
     # We do not want a template text for bulk operations
@@ -355,7 +295,7 @@ def main():
             module.fail_json(
                 msg="Neither file_name nor template allowed if 'name: *'!")
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
     file_name = entity_dict.pop('file_name', None)
 
     if file_name or 'template' in entity_dict:
@@ -382,59 +322,47 @@ def main():
             module.fail_json(
                 msg='No name specified and no filename to infer it.')
 
-    name = entity_dict['name']
-
-    affects_multiple = name == '*'
+    affects_multiple = entity_dict['name'] == '*'
     # sanitize user input, filter unuseful configuration combinations with 'name: *'
     if affects_multiple:
-        if state == 'present_with_defaults':
+        if module.state == 'present_with_defaults':
             module.fail_json(msg="'state: present_with_defaults' and 'name: *' cannot be used together")
-        if state == 'absent':
+        if module.desired_absent:
             if len(entity_dict.keys()) != 1:
                 module.fail_json(msg="When deleting all templates, there is no need to specify further parameters.")
 
     module.connect()
 
-    try:
-        if affects_multiple:
-            entities = find_entities(ProvisioningTemplate)
-        else:
-            entities = find_entities(ProvisioningTemplate, name=entity_dict['name'])
-    except Exception as e:
-        module.fail_json(msg='Failed to search for entities: %s ' % e)
+    if affects_multiple:
+        entities = module.list_resource('provisioning_templates')
+        if not entities:
+            # Nothing to do; shortcut to exit
+            module.exit_json(changed=False)
+        if not module.desired_absent:  # not 'thin'
+            entities = [module.show_resource('provisioning_templates', entity['id']) for entity in entities]
+    else:
+        entity = module.find_resource_by_name('provisioning_templates', name=entity_dict['name'], failsafe=True)
 
-    # Set Locations of Template
-    if 'locations' in entity_dict:
-        entity_dict['locations'] = find_entities_by_name(
-            Location, entity_dict['locations'], module)
+    if not module.desired_absent:
+        if 'locations' in entity_dict:
+            entity_dict['locations'] = module.find_resources_by_title('locations', entity_dict['locations'], thin=True)
 
-    # Set Organizations of Template
-    if 'organizations' in entity_dict:
-        entity_dict['organizations'] = find_entities_by_name(
-            Organization, entity_dict['organizations'], module)
+        if 'organizations' in entity_dict:
+            entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
-    if 'operatingsystems' in entity_dict:
-        entity_dict['operatingsystems'] = [find_operating_system_by_title(module, title)
-                                           for title in entity_dict['operatingsystems']]
+        if 'operatingsystems' in entity_dict:
+            entity_dict['operatingsystems'] = module.find_operatingsystems(entity_dict['operatingsystems'], thin=True)
 
     if not affects_multiple:
-        entity_dict = find_template_kind(entity_dict, module)
-
-    entity_dict = sanitize_entity_dict(entity_dict, name_map)
+        entity_dict = find_template_kind(module, entity_dict)
 
     changed = False
     if not affects_multiple:
-        if len(entities) == 0:
-            entity = None
-        else:
-            entity = entities[0]
-        changed = naildown_entity_state(
-            ProvisioningTemplate, entity_dict, entity, state, module)
+        changed = module.ensure_entity_state('provisioning_templates', entity_dict, entity)
     else:
         entity_dict.pop('name')
         for entity in entities:
-            changed |= naildown_entity_state(
-                ProvisioningTemplate, entity_dict, entity, state, module)
+            changed |= module.ensure_entity_state('provisioning_templates', entity_dict, entity)
 
     module.exit_json(changed=changed)
 

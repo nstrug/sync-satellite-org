@@ -34,26 +34,7 @@ author:
   - "Matthias Dellweg (@mdellweg) ATIX AG"
 requirements:
   - "nailgun >= 0.29.0"
-  - "ansible >= 2.3"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    default: true
-    type: bool
   audit_comment:
     description:
       - Content of the audit comment field
@@ -162,7 +143,7 @@ options:
       - absent
       - present
       - present_with_defaults
-
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -304,6 +285,7 @@ try:
         find_entities,
         find_entities_by_name,
         find_template_input,
+        ForemanEntityAnsibleModule,
         naildown_entity,
         naildown_entity_state,
         sanitize_entity_dict,
@@ -316,8 +298,6 @@ try:
     )
 except ImportError:
     pass
-
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 # This is the only true source for names (and conversions thereof)
@@ -360,7 +340,6 @@ def main():
             # Control parameter
             state=dict(default='present', choices=['absent', 'present_with_defaults', 'present']),
         ),
-        supports_check_mode=True,
         mutually_exclusive=[
             ['file_name', 'template'],
         ],

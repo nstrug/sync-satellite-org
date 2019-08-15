@@ -1,0 +1,300 @@
+interactions:
+- request:
+    body: !!python/unicode '{}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['2']
+      User-Agent: [python-requests/2.18.4]
+      content-type: [application/json]
+    method: GET
+    uri: https://centos7-katello-nightly.sean.example.com/katello/api/v2/ping
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA43PuwqAMAwF0N2vkMwuPnDwZ0rQisW+aFIX6b/bujnVKdxwLiFtewMxciRYwJ3Q
+        AclwqVXmfIOP2pf5FVsMyMpZYcpqHCB1rxQY+ajxfi58Rbtp6ZWt8vHD/52YSmd3QRq0gpFOqlXy
+        Dyk1D2rjQrYNAQAA
+    headers:
+      apipie-checksum: [fb425d67305247df38ecf5e4c6714214eb9c24aa]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['126']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 05 Dec 2018 15:25:28 GMT']
+      etag: [W/"3a5a68db47fd75dc89b916294120304c-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.20.0-develop]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [_session_id=e63efe5c26e0e004d3805e882a788c91; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [541c2122-286a-46a0-9f16-bc4813d3192c]
+      x-runtime: ['0.114984']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"search": "name=\"Test Organization\""}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['40']
+      User-Agent: [python-requests/2.18.4]
+      content-type: [application/json]
+    method: GET
+    uri: https://centos7-katello-nightly.sean.example.com/katello/api/v2/organizations
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA42PwUrEMBCG732KMOcuNJGFJeDJB/Cynlwp02ZYA7Etk+lBS9/d2bSiCIK3+b78
+        4Z9ZKmNARsEE3rj6RnnuvoQtYsIrfQNxuwvXbHlC7l+VYcA3ur/AmbKYR77iED9Q4jhcALbkyKK5
+        RWel7l3nYU6p3njkQLwrNWv5wpTnJFn18wIJO9K1SkH7swBq6JlQKLSoDeAaezpYd2iOxh69a/zd
+        yTydHzQ2T+E/sRjAO1uXi/ZC86tQoqS/3gLlnuNUyN/uWV+qtfoE6WussGwBAAA=
+    headers:
+      apipie-checksum: [fb425d67305247df38ecf5e4c6714214eb9c24aa]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['218']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 05 Dec 2018 15:25:28 GMT']
+      etag: [W/"be744944ced56d172ab287696b25aa6f-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.20.0-develop]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [_session_id=b0659fec9b037dcb536dcb6f769003a4; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [9bdad6c7-da2a-412d-9b04-c2ce7c8105ed]
+      x-runtime: ['0.048014']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"organization_id": 21, "name": "Test Product"}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['47']
+      User-Agent: [python-requests/2.18.4]
+      content-type: [application/json]
+    method: GET
+    uri: https://centos7-katello-nightly.sean.example.com/katello/api/v2/products
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA32Ry07EMAxF93xF5XUX04F5qDu+YFiwQyjypFYnIpNEjgsqVf+dtJ1HKRI7+9i5
+        9nU6EC9ooSxyiM3xngSsaQqI1ZSsVzkQs2coXWNtekDI+nTLPAuUHRxbKMHhmSAHzxWldsCooc+B
+        KTZWIpRvHZgqKW72OeighhiK9X7ztFuttrttkZ6OCiW8UpTshX3VaEnU4pHsBas7rihqNkGMd6n4
+        nJ0whDazRsRSJoNEuPWm6NOktcap68e0eOu0ChbdSC5mBhab8xk52enS7nWo1Qe1855olUaliWVJ
+        rSEn/1QWQuMwQaErsZjsDfgPUF/ppvGKPdfozDcOxic/xW84fMj8kod5bXHORW2S62f3uU5lCj4a
+        8dwq7RuXfr3o3/uHH7vSJfRMAgAA
+    headers:
+      apipie-checksum: [fb425d67305247df38ecf5e4c6714214eb9c24aa]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['306']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 05 Dec 2018 15:25:28 GMT']
+      etag: [W/"00a84a8aa5a3a170444a0905e1532113-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.20.0-develop]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [_session_id=ff3d27326c3c24237500aef2a6ccd805; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [b6a6dbe9-4486-4b53-b79e-dc8373f6d93b]
+      x-runtime: ['0.078523']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"product_id": 258, "name": "Test Repository"}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['46']
+      User-Agent: [python-requests/2.18.4]
+      content-type: [application/json]
+    method: GET
+    uri: https://centos7-katello-nightly.sean.example.com/katello/api/v2/repositories
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA21TyY7bMAy99ysKnp1x4nE2f0OBFkVvg4FA23SiVpYELdN6gvx7KS+TBO3FJsWn
+        R/KRukAwARVUmwx8rG+OxRNNBjkxOcU6A3LOOKh0VIovELrm/OEZF6C6QD1ABRp7ggyMa4nhgL6B
+        awaOfFTBQ/VygcboQDqIMFjmhiH2jI+Os8M5BOurPHdkjX/qqDUOLRmr6Mm4U26jstOnpd6IEZW/
+        G5NDyqAwyDfikgNXBj/IB/HVnVDLdw4YnX+RtUM35E30wfT5CPjmTBubMDnfE58Mxg3MNzUI2oxG
+        9lG1bPl0sy3LdfFclNv984GDNTa/SLccZIjs5Nj6oW6pKOt6VdJmsyqPxXZ1bLbHFeJxt24Qu3K/
+        57s9/rwJ20t9c1JKlJrH4D4qE6O+MyDVciyzSfOp5c8PTSisSS1iPERa8o2TNgmzsNlJizTJRFxs
+        D1yCnRsuDttyv17v9rsNPCacJRxnbs+oifEdKk+8GINuhFXIKV6WxbhPPCNaDCkiWWD3xlvI/PQn
+        iBSD12vqws/eIowVD53dj1ncz1X82/gyx8ZEnRbyAsYHRyR4OXQaOe96a3icTvRM2jHB/86Eko+B
+        gKfRdbYf/34xLO/G+Iputjg5E+14ws8KQ5yR0VoKoufS1YTv5Gy0VI//KSZSxZgu3asjfvOj85NG
+        19frp7+JnIpv4gMAAA==
+    headers:
+      apipie-checksum: [fb425d67305247df38ecf5e4c6714214eb9c24aa]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['526']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 05 Dec 2018 15:25:28 GMT']
+      etag: [W/"966f22118b4ae383d20f138942819989-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.20.0-develop]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [_session_id=9cc5d2082199498211d4f840448e300b; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [66fd6c43-6dcb-45c4-ae3c-d99ab3f87397]
+      x-runtime: ['0.083499']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"organization_id": 21, "name": "Test Content View"}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['52']
+      User-Agent: [python-requests/2.18.4]
+      content-type: [application/json]
+    method: GET
+    uri: https://centos7-katello-nightly.sean.example.com/katello/api/v2/content_views
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA0XLsQqAMBAD0N3PyNxBHe9XRORaDx1qK9d2kOK/WxB0ywtJRY6ZPag3SMX+OHkT
+        0NCC6PJibLWoRgWF4n07CKvbP0XNoAp7gRD4EBhEXaXNwcnhNlBJxecEmua7ewAzgtzWewAAAA==
+    headers:
+      apipie-checksum: [fb425d67305247df38ecf5e4c6714214eb9c24aa]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['112']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 05 Dec 2018 15:25:28 GMT']
+      etag: [W/"956e0fd5b832fbda8d01b01a5b7de844-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.20.0-develop]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [_session_id=b8ec6c25c10439eb70c338bf8fdae81e; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [0d61359b-207a-42aa-b7ab-4ef77ce5b66b]
+      x-runtime: ['0.040084']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"composite": false, "auto_publish": false, "organization_id":
+      21, "repository_ids": [94], "name": "Test Content View"}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['119']
+      User-Agent: [python-requests/2.18.4]
+      content-type: [application/json]
+    method: POST
+    uri: https://centos7-katello-nightly.sean.example.com/katello/api/v2/content_views
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA41SQWrDMBC89xVGZ6fYbgKNr3lAoaS9hCAUa9OIypKQJbeuyd+7jhXHNikUdNHO
+        amc0s1HUkkIrB8rRk64cLbRXjuRJjOXS6Eo4IPmRyQpCRXWtglck3+1jwuHIvHRDy1HbAqjxxoCj
+        oGphtSpB3RpqsJXQasQjmQMkDgDJlZcyJsw7jXMOUlSn4bGFiyJtm6BgvUQNgpP8KY2JYiVqJVuc
+        Fm36P0XvAr5Ix3EAGTAaMBowDlVhhXEjcm0/mBI/rKvRbnyWToskbyd0L2NsRjfD+nFndNMC/pxT
+        hjaQLEmfF2m2SFZRusozPOvobbvBfm/4f9pGXodoBrMEdJX2wrxeTn16HRydy54g1xVxjemeNr4k
+        Z6QIOZeaewmBNuQYbsPKDPd+UI3e0znICifq3vRPaEJRwfdoOUj6mFyUosKwHcCvsRmwpagCe0sC
+        x40Qq8563CPgwt1HcBmc1c19MBD+AVpdagdUW2qh1DXca8PYuTdSFBgpHQdEx9u+258ffgHLA7Ce
+        mQMAAA==
+    headers:
+      apipie-checksum: [fb425d67305247df38ecf5e4c6714214eb9c24aa]
+      cache-control: ['max-age=0, private, must-revalidate']
+      connection: [Keep-Alive]
+      content-encoding: [gzip]
+      content-length: ['403']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 05 Dec 2018 15:25:29 GMT']
+      etag: [W/"9b6b9e04fec4d3b50743da48458023c4-gzip"]
+      foreman_api_version: ['2']
+      foreman_version: [1.20.0-develop]
+      keep-alive: ['timeout=5, max=10000']
+      server: [Apache/2.4.6 (CentOS)]
+      set-cookie: [request_method=POST; path=/; secure; HttpOnly; SameSite=Lax, _session_id=48eb1be454c6edf960c4ed57501588c4;
+          path=/; secure; HttpOnly; SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [d4aa3ab8-8641-4b1b-a2b2-b16030b63c09]
+      x-runtime: ['0.124005']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+version: 1

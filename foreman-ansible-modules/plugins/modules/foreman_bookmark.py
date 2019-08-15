@@ -28,8 +28,6 @@ module: foreman_bookmark
 short_description: Manage Foreman Bookmarks
 description:
   - "Manage Foreman Bookmark Entities"
-  - "Uses https://github.com/SatelliteQE/nailgun"
-version_added: "2.4"
 author:
   - "Bernhard Hopfenmueller (@Fobhep) ATIX AG"
   - "Christoffer Reijer (@ephracis) Basalt AB"
@@ -37,25 +35,6 @@ requirements:
   - "ansible >= 2.3"
   - "apypie"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    required: false
-    default: true
-    type: bool
   name:
     description:
       - Name of the bookmark
@@ -81,6 +60,7 @@ options:
       - present
       - present_with_defaults
       - absent
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -118,22 +98,16 @@ RETURN = ''' # '''
 
 from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'controller': 'controller',
-    'public': 'public',
-    'query': 'query',
-}
-
 
 def main():
     module = ForemanEntityApypieAnsibleModule(
-        argument_spec=dict(
+        entity_spec=dict(
             name=dict(required=True),
             controller=dict(required=True),
             public=dict(defaut='true', type='bool'),
             query=dict(),
+        ),
+        argument_spec=dict(
             state=dict(default='present', choices=[
                        'present_with_defaults', 'present', 'absent']),
         ),
@@ -141,17 +115,16 @@ def main():
             ['state', 'present', ['query']],
             ['state', 'present_with_defaults', ['query']],
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
     search = 'name="{}",controller="{}"'.format(entity_dict['name'], entity_dict['controller'])
     entity = module.find_resource('bookmarks', search, failsafe=True)
 
-    changed = module.ensure_resource_state('bookmarks', entity_dict, entity, state, name_map)
+    changed = module.ensure_entity_state('bookmarks', entity_dict, entity)
 
     module.exit_json(changed=changed)
 

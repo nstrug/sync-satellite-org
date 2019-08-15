@@ -25,28 +25,8 @@ description:
     - Crate and manage a Katello repository
 author: "Eric D Helms (@ehelms)"
 requirements:
-    - "nailgun >= 0.32.0"
-    - "python >= 2.6"
-    - "ansible >= 2.3"
+    - apypie
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-     - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    default: true
-    type: bool
   name:
     description:
       - Name of the repository
@@ -76,7 +56,7 @@ options:
   url:
     description:
       - Repository URL to sync from
-    required: true
+    required: false
   docker_upstream_name:
     description:
       - name of the upstream docker repository
@@ -106,6 +86,7 @@ options:
       - present_with_defaults
       - present
       - absent
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -139,77 +120,49 @@ EXAMPLES = '''
     gpg_key: RPM-GPG-KEY-my-product2
 '''
 
-RETURN = '''# '''
-
-try:
-    from nailgun.entities import (
-        Repository,
-    )
-
-    from ansible.module_utils.ansible_nailgun_cement import (
-        find_organization,
-        find_product,
-        find_content_credential,
-        find_repository,
-        naildown_entity_state,
-        sanitize_entity_dict,
-    )
-except ImportError:
-    pass
-
-from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
+RETURN = ''' # '''
 
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'product': 'product',
-    'content_type': 'content_type',
-    'label': 'label',
-    'url': 'url',
-    'gpg_key': 'gpg_key',
-    'docker_upstream_name': 'docker_upstream_name',
-    'download_policy': 'download_policy',
-    'mirror_on_sync': 'mirror_on_sync',
-}
+from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
 
 
 def main():
-    module = KatelloEntityAnsibleModule(
+    module = KatelloEntityApypieAnsibleModule(
         argument_spec=dict(
             product=dict(required=True),
+        ),
+        entity_spec=dict(
             label=dict(),
             name=dict(required=True),
             content_type=dict(required=True, choices=['docker', 'ostree', 'yum', 'puppet', 'file', 'deb']),
             url=dict(),
-            gpg_key=dict(),
+            gpg_key=dict(type='entity', flat_name='gpg_key_id'),
             docker_upstream_name=dict(),
             download_policy=dict(choices=['background', 'immediate', 'on_demand']),
             mirror_on_sync=dict(type='bool', default=True),
             state=dict(default='present', choices=['present_with_defaults', 'present', 'absent']),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     if entity_dict['content_type'] != 'docker' and 'docker_upstream_name' in entity_dict:
         module.fail_json(msg="docker_upstream_name should not be set unless content_type: docker")
 
     module.connect()
 
-    entity_dict['organization'] = find_organization(module, name=entity_dict['organization'])
+    entity_dict['organization'] = module.find_resource_by_name('organizations', name=entity_dict['organization'], thin=True)
+    scope = {'organization_id': entity_dict['organization']['id']}
+    entity_dict['product'] = module.find_resource_by_name('products', name=entity_dict['product'], params=scope, thin=True)
 
-    entity_dict['product'] = find_product(module, name=entity_dict['product'], organization=entity_dict['organization'])
+    if not module.desired_absent:
+        if 'gpg_key' in entity_dict:
+            entity_dict['gpg_key'] = module.find_resource_by_name('content_credentials', name=entity_dict['gpg_key'], params=scope, thin=True)
 
-    if 'gpg_key' in entity_dict:
-        entity_dict['gpg_key'] = find_content_credential(module, name=entity_dict['gpg_key'], organization=entity_dict['organization'])
+    scope['product_id'] = entity_dict['product']['id']
+    entity = module.find_resource_by_name('repositories', name=entity_dict['name'], params=scope, failsafe=True)
 
-    entity = find_repository(module, name=entity_dict['name'], product=entity_dict['product'], failsafe=True)
-
-    entity_dict = sanitize_entity_dict(entity_dict, name_map)
-
-    changed = naildown_entity_state(Repository, entity_dict, entity, state, module)
+    changed = module.ensure_entity_state('repositories', entity_dict, entity, params=scope)
 
     module.exit_json(changed=changed)
 

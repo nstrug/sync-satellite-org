@@ -26,27 +26,7 @@ description:
 author: "Sean O'Keeffe (@sean797)"
 requirements:
     - "nailgun >= 0.28.0"
-    - "python >= 2.6"
-    - "ansible >= 2.3"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-     - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    default: true
-    type: bool
   content_view:
     description:
       - Name of the content view
@@ -126,6 +106,7 @@ options:
     description:
       - Create an include filter
     default: False
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -170,13 +151,12 @@ try:
         find_content_view_filter_rule,
         find_errata,
         find_package_group,
+        ForemanAnsibleModule,
         naildown_entity_state,
         sanitize_entity_dict,
     )
 except ImportError:
     pass
-
-from ansible.module_utils.foreman_helper import ForemanAnsibleModule
 
 content_filter_map = {
     'name': 'name',
@@ -247,7 +227,6 @@ def main():
             types=dict(default=["bugfix", "enhancement", "security"], type='list'),
             version=dict(),
         ),
-        supports_check_mode=False,
     )
 
     entity_dict = module.parse_params()

@@ -1,0 +1,41 @@
+---
+- hosts: fixtures
+  gather_facts: false
+  vars_files:
+    - vars/server.yml
+  tasks:
+  - include: tasks/organization.yml
+    vars:
+      organization_state: present
+
+- hosts: tests
+  gather_facts: false
+  vars_files:
+    - vars/server.yml
+  tasks:
+  - include: tasks/host_collection.yml
+    vars:
+      host_collection_state: present
+      expected_change: true
+  - include: tasks/host_collection.yml
+    vars:
+      host_collection_state: present
+      expected_change: false
+  - include: tasks/host_collection.yml
+    vars:
+      host_collection_state: absent
+      expected_change: true
+  - include: tasks/host_collection.yml
+    vars:
+      host_collection_state: absent
+      expected_change: false
+
+- hosts: fixtures
+  gather_facts: false
+  vars_files:
+    - vars/server.yml
+  tasks:
+  - include: tasks/organization.yml
+    vars:
+      organization_state: absent
+...

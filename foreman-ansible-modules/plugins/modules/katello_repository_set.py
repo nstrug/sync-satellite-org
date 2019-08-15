@@ -26,26 +26,7 @@ description:
 author: "Andrew Kofink (@akofink)"
 requirements:
   - "nailgun >= 0.28.0"
-  - "python >= 2.6"
-  - "ansible >= 2.3"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    default: true
   name:
     description:
       - Name of the repository set
@@ -75,6 +56,7 @@ options:
     choices:
       - 'enabled'
       - 'disabled'
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -83,7 +65,6 @@ EXAMPLES = '''
     username: "admin"
     password: "changeme"
     server_url: "https://foreman.example.com"
-    validate_certs: false
     name: "Red Hat Enterprise Linux 7 Server (RPMs)"
     organization: "Default Organization"
     product: "Red Hat Enterprise Linux Server"
@@ -103,7 +84,6 @@ EXAMPLES = '''
     username: "admin"
     password: "changeme"
     server_url: "https://foreman.example.com"
-    validate_certs: false
     organization: "Default Organization"
     label: rhel-7-server-rpms
     repositories:
@@ -122,13 +102,22 @@ EXAMPLES = '''
     username: "admin"
     password: "changeme"
     server_url: "https://foreman.example.com"
-    validate_certs: false
     name: Red Hat Enterprise Linux 7 Server - Extras (RPMs)
     organization: "Default Organization"
     product: Red Hat Enterprise Linux Server
     state: disabled
     repositories:
       - basearch: x86_64
+
+- name: "Enable RHEL 8 BaseOS RPMs repository with label"
+  katello_repository_set:
+    username: "admin"
+    password: "changeme"
+    server_url: "https://foreman.example.com"
+    organization: "Default Organization"
+    label: rhel-8-for-x86_64-baseos-rpms
+    repositories:
+      - releasever: 8
 '''
 
 RETURN = '''# '''
@@ -138,11 +127,10 @@ try:
         find_organization,
         find_product,
         find_repository_set,
+        KatelloEntityAnsibleModule,
     )
 except ImportError:
     pass
-
-from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
 
 
 def get_desired_repos(desired_substitutions, available_repos):
@@ -197,7 +185,6 @@ def main():
             repositories=dict(required=True, type='list'),
             state=dict(default='enabled', choices=['disabled', 'enabled']),
         ),
-        supports_check_mode=True,
         required_one_of=[['label', 'name']],
     )
 

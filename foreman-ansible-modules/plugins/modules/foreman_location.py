@@ -26,29 +26,8 @@ description:
 author:
   - "Matthias M Dellweg (@mdellweg) ATIX AG"
 requirements:
-  - "nailgun >= 0.28.0"
-  - "python >= 2.6"
-  - "ansible >= 2.3"
+  - apypie
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    required: false
-    default: true
-    type: bool
   name:
     description:
       - Name or Title of the Foreman Location
@@ -67,6 +46,7 @@ options:
     choices:
       - present
       - absent
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -113,67 +93,49 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-try:
-    from ansible.module_utils.ansible_nailgun_cement import (
-        find_entities,
-        find_location,
-        find_organizations,
-        naildown_entity_state,
-        sanitize_entity_dict,
-    )
-    from ansible.module_utils.foreman_helper import (
-        split_fqn,
-        build_fqn,
-    )
-    from nailgun.entities import Location
-except ImportError:
-    pass
-
-
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
-
-
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'parent': 'parent',
-    'organizations': 'organization',
-}
+from ansible.module_utils.foreman_helper import (
+    build_fqn,
+    ForemanEntityApypieAnsibleModule,
+    split_fqn,
+)
 
 
 def main():
-    module = ForemanEntityAnsibleModule(
-        argument_spec=dict(
+    module = ForemanEntityApypieAnsibleModule(
+        entity_spec=dict(
             name=dict(required=True),
-            parent=dict(),
-            organizations=dict(type='list'),
+            parent=dict(type='entity', flat_name='parent_id'),
+            organizations=dict(type='entity_list', flat_name='organization_ids'),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
-    name_or_title = entity_dict.pop('name')
-    parent = entity_dict.pop('parent', None)
-
     # Get short name and parent from provided name
-    parent_from_title, name = split_fqn(name_or_title)
-
+    name, parent = split_fqn(entity_dict['name'])
     entity_dict['name'] = name
+
+    if 'parent' in entity_dict:
+        if parent:
+            module.fail_json(msg="Please specify the parent either separately, or as part of the title.")
+        parent = entity_dict['parent']
     if parent:
-        entity_dict['parent'] = find_location(module, parent)
-    elif parent_from_title:
-        entity_dict['parent'] = find_location(module, parent_from_title)
+        search_string = 'title="{}"'.format(parent)
+        entity_dict['parent'] = module.find_resource('locations', search=search_string, thin=True, failsafe=module.desired_absent)
 
-    if 'organizations' in entity_dict:
-        entity_dict['organizations'] = find_organizations(module, entity_dict['organizations'])
+        if module.desired_absent and entity_dict['parent'] is None:
+            # Parent location does not exist so just exit here
+            module.exit_json(changed=False)
 
-    entity = find_location(module, title=build_fqn(name_or_title, parent), failsafe=True)
-    entity_dict = sanitize_entity_dict(entity_dict, name_map)
+    if not module.desired_absent:
+        if 'organizations' in entity_dict:
+            entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
-    changed = naildown_entity_state(Location, entity_dict, entity, state, module)
+    entity = module.find_resource('locations', search='title="{}"'.format(build_fqn(name, parent)), failsafe=True)
+
+    changed = module.ensure_entity_state('locations', entity_dict, entity)
 
     module.exit_json(changed=changed)
 

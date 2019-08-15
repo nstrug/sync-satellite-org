@@ -25,28 +25,8 @@ description:
   - Create and Manage Katello content credentials
 author: "Baptiste Agasse (@bagasse)"
 requirements:
-  - "nailgun >= 0.32.0"
-  - "python >= 2.6"
-  - "ansible >= 2.3"
+  - apypie
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-     - Username on Foreman server
-    required: true
-  password:
-    description:
-     - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    default: true
-    type: bool
   name:
     description:
       - Name of the content credential
@@ -73,6 +53,7 @@ options:
     choices:
       - present
       - absent
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -92,34 +73,24 @@ RETURN = ''' # '''
 from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
 
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'organization': 'organization_id',
-    'content_type': 'content_type',
-    'content': 'content',
-}
-
-
 def main():
     module = KatelloEntityApypieAnsibleModule(
-        argument_spec=dict(
+        entity_spec=dict(
             name=dict(required=True),
             content_type=dict(required=True, choices=['gpg_key', 'cert']),
             content=dict(required=True),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
     entity_dict['organization'] = module.find_resource_by_name('organizations', entity_dict['organization'], thin=True)
-    search_params = {'organization_id': entity_dict['organization']['id']}
-    entity = module.find_resource_by_name('content_credentials', name=entity_dict['name'], params=search_params, failsafe=True)
+    scope = {'organization_id': entity_dict['organization']['id']}
+    entity = module.find_resource_by_name('content_credentials', name=entity_dict['name'], params=scope, failsafe=True)
 
-    changed = module.ensure_resource_state('content_credentials', entity_dict, entity, state, name_map)
+    changed = module.ensure_entity_state('content_credentials', entity_dict, entity, params=scope)
 
     module.exit_json(changed=changed)
 

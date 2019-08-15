@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -30,32 +29,11 @@ short_description: Manage Foreman hosts power state
 description:
   - "Manage power state of Foreman host"
   - "This beta version can start and stop an existing foreman host and question the current power state."
-version_added: "2.7"
 author:
   - "Bernhard Hopfenmueller (@Fobhep) ATIX AG"
 requirements:
   - "nailgun >= 0.29.0"
-  - "ansible >= 2.3"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    required: false
-    default: true
-    type: bool
   hostname:
     description:
       - fqdn of host
@@ -67,6 +45,7 @@ options:
       - on
       - off
       - state
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -115,6 +94,7 @@ try:
 
     from ansible.module_utils.ansible_nailgun_cement import (
         find_host,
+        ForemanEntityAnsibleModule,
         naildown_power_state,
         query_power_state,
     )
@@ -128,7 +108,6 @@ def main():
             hostname=dict(required=True),
             state=dict(default='present', choices=['on', 'off', 'state']),
         ),
-        supports_check_mode=True,
     )
 
     (host_dict, state) = module.parse_params()

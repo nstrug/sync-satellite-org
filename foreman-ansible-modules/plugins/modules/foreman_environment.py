@@ -24,7 +24,6 @@ module: foreman_environment
 short_description: Manage Foreman Environment (Puppet) using Foreman API
 description:
   - Create and Delete Foreman Environment using Foreman API
-version_added: "2.5"
 author:
   - "Bernhard Suttner (@_sbernhard) ATIX AG"
   - "Christoffer Reijer (@ephracis) Basalt AB"
@@ -42,24 +41,11 @@ options:
     description: List of organizations the environment should be assigned to
     required: false
     type: list
-  server_url:
-    description: foreman url
-    required: true
-  username:
-    description: foreman username
-    required: true
-  password:
-    description: foreman user password
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description: verify ssl connection when communicating with foreman
-    default: true
-    type: bool
   state:
     description: environment presence
     default: present
     choices: ["present", "absent"]
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -73,7 +59,6 @@ EXAMPLES = '''
     server_url: "https://foreman.example.com"
     username: "admin"
     password: "secret"
-    validate_certs: False
     state: present
 '''
 
@@ -83,37 +68,30 @@ from ansible.module_utils.foreman_helper import (
     ForemanEntityApypieAnsibleModule,
 )
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'organizations': 'organization_ids',
-    'locations': 'location_ids',
-}
-
 
 def main():
     module = ForemanEntityApypieAnsibleModule(
-        argument_spec=dict(
+        entity_spec=dict(
             name=dict(required=True),
-            locations=dict(type='list'),
-            organizations=dict(type='list'),
+            locations=dict(type='entity_list', flat_name='location_ids'),
+            organizations=dict(type='entity_list', flat_name='organization_ids'),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
     entity = module.find_resource_by_name('environments', name=entity_dict['name'], failsafe=True)
 
-    if 'locations' in entity_dict:
-        entity_dict['locations'] = module.find_resources('locations', entity_dict['locations'], thin=True)
+    if not module.desired_absent:
+        if 'locations' in entity_dict:
+            entity_dict['locations'] = module.find_resources_by_title('locations', entity_dict['locations'], thin=True)
 
-    if 'organizations' in entity_dict:
-        entity_dict['organizations'] = module.find_resources('organizations', entity_dict['organizations'], thin=True)
+        if 'organizations' in entity_dict:
+            entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
-    changed = module.ensure_resource_state('environments', entity_dict, entity, state, name_map)
+    changed = module.ensure_entity_state('environments', entity_dict, entity)
 
     module.exit_json(changed=changed)
 

@@ -24,14 +24,11 @@ module: foreman_compute_profile
 short_description: Manage Foreman Compute Profiles using Foreman API
 description:
   - Create and delete Foreman Compute Profiles using Foreman API
-version_added: "2.0"
 author:
   - "Philipp Joos (@philippj)"
   - "Baptiste Agasse (@bagasse)"
 requirements:
   - "nailgun >= 0.28.0"
-  - "python >= 2.6"
-  - "ansible >= 2.3"
 options:
   name:
     description: compute profile name
@@ -42,24 +39,11 @@ options:
   compute_attributes:
     description: Compute attributes related to this compute profile. Some of these attributes are specific to the underlying compute resource type
     required: false
-  server_url:
-    description: foreman url
-    required: true
-  username:
-    description: foreman username
-    required: true
-  password:
-    description: foreman user password
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description: verify ssl connection when communicating with foreman
-    default: true
-    type: bool
   state:
     description: compute profile presence
     default: present
     choices: ["present", "absent"]
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -69,7 +53,6 @@ EXAMPLES = '''
     server_url: foreman.example.com
     username: admin
     password: secret
-    validate_certs: false
     state: present
 
 - name: another compute profile
@@ -84,7 +67,6 @@ EXAMPLES = '''
     server_url: foreman.example.com
     username: admin
     password: secret
-    validate_certs: false
     state: present
 
 - name: compute profile2
@@ -129,7 +111,6 @@ EXAMPLES = '''
     server_url: foreman.example.com
     username: admin
     password: secret
-    validate_certs: false
     state: present
 
 - name: Remove compute profile
@@ -145,6 +126,7 @@ try:
         find_compute_resource,
         find_compute_profile,
         find_compute_attribute,
+        ForemanEntityAnsibleModule,
         naildown_entity,
         naildown_entity_state,
         sanitize_entity_dict,
@@ -157,8 +139,6 @@ try:
     )
 except ImportError:
     pass
-
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 # This is the only true source for names (and conversions thereof)
@@ -202,7 +182,6 @@ def main():
             updated_name=dict(),
             compute_attributes=dict(type='list'),
         ),
-        supports_check_mode=True,
     )
 
     (compute_profile_dict, state) = module.parse_params()

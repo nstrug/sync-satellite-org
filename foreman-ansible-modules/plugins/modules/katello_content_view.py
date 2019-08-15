@@ -26,27 +26,7 @@ description:
 author: "Eric D Helms (@ehelms)"
 requirements:
     - "nailgun >= 0.28.0"
-    - "python >= 2.6"
-    - "ansible >= 2.3"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    default: true
-    type: bool
   name:
     description:
       - Name of the Katello Content View
@@ -84,6 +64,7 @@ options:
       - List of content views to includes content_view and either version or latest.
       - Ignored if I(composite=False).
     type: list
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -127,14 +108,13 @@ try:
         find_content_view,
         find_content_view_version,
         find_repositories,
+        KatelloEntityAnsibleModule,
         naildown_entity_state,
         naildown_entity,
         sanitize_entity_dict,
     )
 except ImportError:
     pass
-
-from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
 
 name_map = {
     'name': 'name',
@@ -162,7 +142,6 @@ def main():
             repositories=dict(type='list'),
             state=dict(default='present', choices=['present_with_defaults', 'present', 'absent']),
         ),
-        supports_check_mode=True,
         mutually_exclusive=[['repositories', 'components']],
     )
 

@@ -43,20 +43,7 @@ options:
   synchronous:
     description: Wait for the Sync task to complete if True. Immediately return if False.
     default: true
-  server_url:
-    description: foreman url
-    required: true
-  username:
-    description: foreman username
-    required: true
-  password:
-    description: foreman user password
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description: verify ssl connection when communicating with foreman
-    default: true
-    type: bool
+extends_documentation_fragment: foreman
 ...
 '''
 
@@ -113,14 +100,13 @@ try:
         find_organization,
         find_product,
         find_repository,
+        ForemanAnsibleModule,
     )
 
     from nailgun import entity_mixins
     entity_mixins.TASK_TIMEOUT = 180000  # Publishes can sometimes take a long, long time
 except ImportError:
     pass
-
-from ansible.module_utils.foreman_helper import ForemanAnsibleModule
 
 
 def main():
@@ -131,7 +117,6 @@ def main():
             repository=dict(),
             synchronous=dict(type='bool', default=True),
         ),
-        supports_check_mode=False,
     )
 
     params = module.parse_params()

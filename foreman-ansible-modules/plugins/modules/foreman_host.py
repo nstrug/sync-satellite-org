@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -30,32 +29,11 @@ short_description: Manage Foreman hosts
 description:
   - "Manage Foreman host Entities"
   - "This beta version can create and delete hosts from preexisting host groups"
-version_added: "2.7"
 author:
   - "Bernhard Hopfenmueller (@Fobhep) ATIX AG"
 requirements:
   - "nailgun >= 0.29.0"
-  - "ansible >= 2.3"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    required: false
-    default: true
-    type: bool
   name:
     description:
       - Name of host (without the related domain!)
@@ -72,7 +50,7 @@ options:
     description:
       - Name of related organization
     required: false
-
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -107,6 +85,7 @@ try:
         find_hostgroup,
         find_location,
         find_organization,
+        ForemanEntityAnsibleModule,
         naildown_entity_state,
         sanitize_entity_dict,
     )
@@ -139,7 +118,6 @@ def main():
             ['state', 'present_with_defaults', ['hostgroup']],
             ['state', 'present', ['hostgroup']],
         ),
-        supports_check_mode=True,
     )
 
     (host_dict, state) = module.parse_params()
@@ -150,7 +128,7 @@ def main():
         module, host_dict['hostgroup'], failsafe=True)
 
     host_dict['name'] = host_dict['name'] + '.' + \
-        host_dict['hostgroup'].domain.read().fullname
+        host_dict['hostgroup'].domain.read().name
 
     entity = find_host(module, host_dict['name'], failsafe=True)
 

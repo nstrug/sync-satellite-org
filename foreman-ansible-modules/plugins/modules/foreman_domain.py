@@ -23,7 +23,6 @@ module: foreman_domain
 short_description: Manage Foreman Domains using Foreman API
 description:
   - Create and Delete Foreman Domains using Foreman API
-version_added: "2.5"
 author:
   - "Markus Bucher (@m-bucher) ATIX AG"
 requirements:
@@ -33,9 +32,13 @@ options:
     description: The full DNS domain name
     required: true
   dns_proxy:
+    aliases:
+      - dns
     description: DNS proxy to use within this domain for managing A records
     required: false
   description:
+    aliases:
+      - fullname
     description: Full name describing the domain
     required: false
   locations:
@@ -48,24 +51,40 @@ options:
     required: false
     default: None
     type: list
-  server_url:
-    description: foreman url
-    required: true
-  username:
-    description: foreman username
-    required: true
-  password:
-    description: foreman user password
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description: verify ssl connection when communicating with foreman
-    default: true
-    type: bool
+  parameters:
+    description:
+      - Domain specific host parameters
+    required: false
+    type: list
+    elements: dict
+    options:
+      name:
+        description:
+          - Name of the parameter
+        required: true
+      value:
+        description:
+          - Value of the parameter
+        required: true
+        type: raw
+      parameter_type:
+        description:
+          - Type of the parameter
+        default: 'string'
+        choices:
+          - 'string'
+          - 'boolean'
+          - 'integer'
+          - 'real'
+          - 'array'
+          - 'hash'
+          - 'yaml'
+          - 'json'
   state:
     description: domain presence
     default: present
     choices: ["present", "absent"]
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -80,54 +99,50 @@ EXAMPLES = '''
     server_url: "https://foreman.example.com"
     username: "admin"
     password: "secret"
-    validate_certs: False
     state: present
 '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
-
-
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'description': 'fullname',
-    'dns_proxy': 'dns_id',
-    'locations': 'location_ids',
-    'organizations': 'organization_ids',
-}
+from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule, parameter_entity_spec
 
 
 def main():
     module = ForemanEntityApypieAnsibleModule(
-        argument_spec=dict(
+        entity_spec=dict(
             name=dict(required=True),
-            description=dict(),
-            dns_proxy=dict(),
-            locations=dict(type='list'),
-            organizations=dict(type='list'),
+            description=dict(aliases=['fullname'], flat_name='fullname'),
+            dns_proxy=dict(type='entity', flat_name='dns_id', aliases=['dns']),
+            locations=dict(type='entity_list', flat_name='location_ids'),
+            organizations=dict(type='entity_list', flat_name='organization_ids'),
+            parameters=dict(type='nested_list', entity_spec=parameter_entity_spec),
         ),
-        supports_check_mode=True,
     )
 
-    (domain_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
     # Try to find the Domain to work on
-    entity = module.find_resource_by_name('domains', name=domain_dict['name'], failsafe=True)
+    entity = module.find_resource_by_name('domains', name=entity_dict['name'], failsafe=True)
 
-    if 'dns_proxy' in domain_dict:
-        domain_dict['dns_proxy'] = module.find_resource_by_name('smart_proxies', domain_dict['dns_proxy'], thin=True)
+    if not module.desired_absent:
+        if 'dns_proxy' in entity_dict:
+            entity_dict['dns_proxy'] = module.find_resource_by_name('smart_proxies', entity_dict['dns_proxy'], thin=True)
 
-    if 'locations' in domain_dict:
-        domain_dict['locations'] = module.find_resources('locations', domain_dict['locations'], thin=True)
+        if 'locations' in entity_dict:
+            entity_dict['locations'] = module.find_resources_by_title('locations', entity_dict['locations'], thin=True)
 
-    if 'organizations' in domain_dict:
-        domain_dict['organizations'] = module.find_resources('organizations', domain_dict['organizations'], thin=True)
+        if 'organizations' in entity_dict:
+            entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
-    changed = module.ensure_resource_state('domains', domain_dict, entity, state, name_map)
+    parameters = entity_dict.get('parameters')
+
+    changed, domain = module.ensure_entity('domains', entity_dict, entity)
+
+    if domain:
+        scope = {'domain_id': domain['id']}
+        changed |= module.ensure_scoped_parameters(scope, entity, parameters)
 
     module.exit_json(changed=changed)
 

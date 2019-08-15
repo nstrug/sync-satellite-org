@@ -25,10 +25,6 @@ description:
     - Download and modify a Red Hat Satellite Subscription Manifest
 author:
     - "Sean O'Keeffe (@sean797)"
-requirements:
-    - "nailgun >= 0.28.0"
-    - "python >= 2.6"
-    - "ansible >= 2.3"
 options:
   name:
     description:
@@ -88,7 +84,6 @@ EXAMPLES = '''
     password: "changeme"
     pool_id: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     quantity: 7
-    validate_certs: false
 
 - name: Ensure my manifest has 10 of one subs in it and export
   redhat_manifest:
@@ -97,7 +92,6 @@ EXAMPLES = '''
     password: changeme
     pool_id: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     quantity: 10
-    validate_certs: false
     path: /root/manifest.zip
 
 - name: Remove all of one subs from katello.example.com
@@ -107,7 +101,6 @@ EXAMPLES = '''
     password: changeme
     pool_id: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     pool_state: absent
-    validate_certs: false
 '''
 
 RETURN = '''# '''

@@ -28,28 +28,8 @@ author:
     - "Eric D Helms (@ehelms)"
     - "Matthias M Dellweg (@mdellweg) ATIX AG"
 requirements:
-    - "python >= 2.6"
-    - "ansible >= 2.3"
+    - "apypie"
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    required: false
-    default: true
-    type: bool
   name:
     description:
       - Name of the Foreman organization
@@ -68,6 +48,7 @@ options:
   label:
     description:
       - Label of the Foreman organization
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -86,31 +67,22 @@ RETURN = ''' # '''
 from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
 
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'description': 'description',
-    'label': 'label',
-}
-
-
 def main():
     module = ForemanEntityApypieAnsibleModule(
-        argument_spec=dict(
+        entity_spec=dict(
             name=dict(required=True),
             description=dict(),
             label=dict(),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
     entity = module.find_resource_by_name('organizations', name=entity_dict['name'], failsafe=True)
 
-    changed = module.ensure_resource_state('organizations', entity_dict, entity, state, name_map)
+    changed = module.ensure_entity_state('organizations', entity_dict, entity)
 
     module.exit_json(changed=changed)
 

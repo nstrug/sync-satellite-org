@@ -1,0 +1,112 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+    method: GET
+    uri: https://centos7-foreman-1-22/api/status
+  response:
+    body: {string: !!python/unicode '{"result":"ok","status":200,"version":"1.22.0","api_version":2}'}
+    headers:
+      apipie-checksum: [d3e1ab676c84fc216ffc13da25fd35b92959027b]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-length: ['63']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 31 Jul 2019 07:04:24 GMT']
+      etag: [W/"674e9dbc2140c688b559566b581c5c09"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      set-cookie: [_session_id=cd5ffeca9b05516eacf86cdd8d75c69c; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [8f0fd14e-51ca-4d9d-a5d8-6e373523fa1d]
+      x-runtime: ['0.043310']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Cookie: [_session_id=cd5ffeca9b05516eacf86cdd8d75c69c]
+    method: GET
+    uri: https://centos7-foreman-1-22/api/operatingsystems?per_page=4294967296&search=description%3D%22famos+SP1%22&thin=True
+  response:
+    body: {string: !!python/unicode "{\n  \"total\": 6,\n  \"subtotal\": 1,\n  \"page\":
+        1,\n  \"per_page\": 4294967296,\n  \"search\": \"description=\\\"famos SP1\\\"\",\n
+        \ \"sort\": {\n    \"by\": null,\n    \"order\": null\n  },\n  \"results\":
+        [{\"description\":\"famos SP1\",\"major\":\"1\",\"minor\":\"1\",\"family\":\"Debian\",\"release_name\":\"reverse
+        whip\",\"password_hash\":\"SHA256\",\"created_at\":\"2019-07-31 07:04:17 UTC\",\"updated_at\":\"2019-07-31
+        07:04:17 UTC\",\"id\":39,\"name\":\"famos\",\"title\":\"famos SP1\"}]\n}\n"}
+    headers:
+      apipie-checksum: [d3e1ab676c84fc216ffc13da25fd35b92959027b]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 31 Jul 2019 07:04:24 GMT']
+      etag: [W/"04d1141aea838649e5191a181c6979bd"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [565617bb-383c-4c26-8f4d-ecea658a4e53]
+      x-runtime: ['0.017727']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Content-Length: ['0']
+      Cookie: [_session_id=cd5ffeca9b05516eacf86cdd8d75c69c]
+    method: DELETE
+    uri: https://centos7-foreman-1-22/api/operatingsystems/39
+  response:
+    body: {string: !!python/unicode '{"id":39,"major":"1","name":"famos","minor":"1","nameindicator":null,"created_at":"2019-07-31T07:04:17.292Z","updated_at":"2019-07-31T07:04:17.292Z","release_name":"reverse
+        whip","description":"famos SP1","password_hash":"SHA256","title":"famos SP1"}'}
+    headers:
+      apipie-checksum: [d3e1ab676c84fc216ffc13da25fd35b92959027b]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 31 Jul 2019 07:04:24 GMT']
+      etag: [W/"cc891b86cdeed2271050666230cf858e"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      set-cookie: [request_method=DELETE; path=/; secure; HttpOnly; SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [43d24e51-5cdc-4146-8fda-7ac3001e9b02]
+      x-runtime: ['0.026764']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+version: 1

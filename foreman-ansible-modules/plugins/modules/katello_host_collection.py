@@ -27,9 +27,7 @@ author:
     - "Maxim Burgerhout (@wzzrd)"
     - "Christoffer Reijer (@ephracis)"
 requirements:
-    - "nailgun >= 0.32.0"
-    - "python >= 2.6"
-    - "ansible >= 2.3"
+    - apypie
 options:
   server_url:
     description:
@@ -86,32 +84,24 @@ RETURN = ''' # '''
 
 from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'organization': 'organization_id',
-    'description': 'description',
-}
-
 
 def main():
     module = KatelloEntityApypieAnsibleModule(
-        argument_spec=dict(
+        entity_spec=dict(
             name=dict(required=True),
             description=dict(),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
     entity_dict['organization'] = module.find_resource_by_name('organizations', entity_dict['organization'], thin=True)
-    search_params = {'organization_id': entity_dict['organization']['id']}
-    entity = module.find_resource_by_name('host_collections', name=entity_dict['name'], params=search_params, failsafe=True)
+    scope = {'organization_id': entity_dict['organization']['id']}
+    entity = module.find_resource_by_name('host_collections', name=entity_dict['name'], params=scope, failsafe=True)
 
-    changed = module.ensure_resource_state('host_collections', entity_dict, entity, state, name_map)
+    changed = module.ensure_entity_state('host_collections', entity_dict, entity, params=scope)
 
     module.exit_json(changed=changed)
 

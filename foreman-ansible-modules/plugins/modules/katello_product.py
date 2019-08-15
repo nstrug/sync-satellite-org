@@ -27,28 +27,8 @@ author:
     - "Eric D Helms (@ehelms)"
     - "Matthias Dellweg (@mdellweg) ATIX AG"
 requirements:
-    - "nailgun >= 0.32.0"
-    - "python >= 2.6"
-    - "ansible >= 2.3"
+    - apypie
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    default: true
-    type: bool
   name:
     description:
       - Name of the Katello product
@@ -81,6 +61,7 @@ options:
       - present
       - absent
       - present_with_defaults
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -105,68 +86,40 @@ EXAMPLES = '''
     state: present
 '''
 
-RETURN = '''# '''
-
-try:
-    from nailgun.entities import (
-        Product,
-    )
-
-    from ansible.module_utils.ansible_nailgun_cement import (
-        find_organization,
-        find_content_credential,
-        find_sync_plan,
-        find_product,
-        naildown_entity_state,
-        sanitize_entity_dict,
-    )
-except ImportError:
-    pass
-
-from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
+RETURN = ''' # '''
 
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'organization': 'organization',
-    'description': 'description',
-    'gpg_key': 'gpg_key',
-    'sync_plan': 'sync_plan',
-    'label': 'label',
-}
+from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
 
 
 def main():
-    module = KatelloEntityAnsibleModule(
-        argument_spec=dict(
+    module = KatelloEntityApypieAnsibleModule(
+        entity_spec=dict(
             name=dict(required=True),
             label=dict(),
-            gpg_key=dict(),
-            sync_plan=dict(),
+            gpg_key=dict(type='entity', flat_name='gpg_key_id'),
+            sync_plan=dict(type='entity', flat_name='sync_plan_id'),
             description=dict(),
             state=dict(default='present', choices=['present_with_defaults', 'present', 'absent']),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
-    entity_dict['organization'] = find_organization(module, name=entity_dict['organization'])
+    entity_dict['organization'] = module.find_resource_by_name('organizations', name=entity_dict['organization'], thin=True)
+    scope = {'organization_id': entity_dict['organization']['id']}
+    entity = module.find_resource_by_name('products', name=entity_dict['name'], params=scope, failsafe=True)
 
-    if 'gpg_key' in entity_dict:
-        entity_dict['gpg_key'] = find_content_credential(module, name=entity_dict['gpg_key'], organization=entity_dict['organization'])
+    if not module.desired_absent:
+        if 'gpg_key' in entity_dict:
+            entity_dict['gpg_key'] = module.find_resource_by_name('content_credentials', name=entity_dict['gpg_key'], params=scope, thin=True)
 
-    if 'sync_plan' in entity_dict:
-        entity_dict['sync_plan'] = find_sync_plan(module, name=entity_dict['sync_plan'], organization=entity_dict['organization'])
+        if 'sync_plan' in entity_dict:
+            entity_dict['sync_plan'] = module.find_resource_by_name('sync_plans', name=entity_dict['sync_plan'], params=scope, thin=True)
 
-    entity = find_product(module, name=entity_dict['name'], organization=entity_dict['organization'], failsafe=True)
-
-    entity_dict = sanitize_entity_dict(entity_dict, name_map)
-
-    changed = naildown_entity_state(Product, entity_dict, entity, state, module)
+    changed = module.ensure_entity_state('products', entity_dict, entity, params=scope)
 
     module.exit_json(changed=changed)
 

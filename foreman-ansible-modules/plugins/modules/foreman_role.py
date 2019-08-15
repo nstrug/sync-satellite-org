@@ -23,7 +23,6 @@ module: foreman_role
 short_description: Manage Foreman Roles using Foreman API
 description:
   - Create and Delete Foreman Roles using Foreman API
-version_added: "2.9"
 author:
   - "Christoffer Reijer (@ephracis) Basalt AB"
 requirements:
@@ -45,24 +44,11 @@ options:
     required: false
     default: None
     type: list
-  server_url:
-    description: foreman url
-    required: true
-  username:
-    description: foreman username
-    required: true
-  password:
-    description: foreman user password
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description: verify ssl connection when communicating with foreman
-    default: true
-    type: bool
   state:
     description: role presence
     default: present
     choices: ["present", "absent"]
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -77,7 +63,6 @@ EXAMPLES = '''
     server_url: "https://foreman.example.com"
     username: "admin"
     password: "secret"
-    validate_certs: False
     state: present
 '''
 
@@ -86,39 +71,30 @@ RETURN = ''' # '''
 from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
 
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'name': 'name',
-    'description': 'description',
-    'locations': 'location_ids',
-    'organizations': 'organization_ids',
-}
-
-
 def main():
     module = ForemanEntityApypieAnsibleModule(
-        argument_spec=dict(
+        entity_spec=dict(
             name=dict(required=True),
             description=dict(),
-            locations=dict(type='list'),
-            organizations=dict(type='list'),
+            locations=dict(type='entity_list', flat_name='location_ids'),
+            organizations=dict(type='entity_list', flat_name='organization_ids'),
         ),
-        supports_check_mode=True,
     )
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
     entity = module.find_resource_by_name('roles', name=entity_dict['name'], failsafe=True)
 
-    if 'locations' in entity_dict:
-        entity_dict['locations'] = module.find_resources('locations', entity_dict['locations'], thin=True)
+    if not module.desired_absent:
+        if 'locations' in entity_dict:
+            entity_dict['locations'] = module.find_resources_by_title('locations', entity_dict['locations'], thin=True)
 
-    if 'organizations' in entity_dict:
-        entity_dict['organizations'] = module.find_resources('organizations', entity_dict['organizations'], thin=True)
+        if 'organizations' in entity_dict:
+            entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
-    changed = module.ensure_resource_state('roles', entity_dict, entity, state, name_map)
+    changed = module.ensure_entity_state('roles', entity_dict, entity)
 
     module.exit_json(changed=changed)
 

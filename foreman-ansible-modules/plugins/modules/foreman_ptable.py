@@ -27,35 +27,12 @@ module: foreman_ptable
 short_description: Manage Partition Table Template in Foreman
 description:
     - "Manage Foreman Partition Table"
-    - "Uses https://github.com/SatelliteQE/nailgun"
-    - "Uses ansible_nailgun_cement in /module_utils"
-version_added: "2.4"
 author:
   - "Bernhard Hopfenmueller (@Fobhep) ATIX AG"
   - "Matthias Dellweg (@mdellweg) ATIX AG"
 requirements:
-  - "nailgun > 0.31.0"
-  - "ansible >= 2.3"
+  - apypie
 options:
-  server_url:
-    description:
-      - URL of Foreman server
-    required: true
-  username:
-    description:
-      - Username on Foreman server
-    required: true
-  password:
-    description:
-      - Password for user accessing Foreman server
-    required: true
-  validate_certs:
-    aliases: [ verify_ssl ]
-    description:
-      - Verify SSL of the Foreman server
-    required: false
-    default: true
-    type: bool
   file_name:
     description:
       - |
@@ -118,6 +95,7 @@ options:
       - absent
       - present
       - present_with_defaults
+extends_documentation_fragment: foreman
 '''
 
 EXAMPLES = '''
@@ -233,78 +211,58 @@ EXAMPLES = '''
 '''
 
 RETURN = ''' # '''
-try:
-    import os
-    from ansible.module_utils.foreman_helper import (
-        parse_template,
-        parse_template_from_file,
-    )
-
-    from nailgun.entities import (
-        PartitionTable,
-        _OPERATING_SYSTEMS,
-        Organization,
-        Location,
-    )
-
-    from ansible.module_utils.ansible_nailgun_cement import (
-        find_entities,
-        find_entities_by_name,
-        naildown_entity_state,
-        sanitize_entity_dict,
-    )
-except ImportError:
-    pass
-
-from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
-# This is the only true source for names (and conversions thereof)
-name_map = {
-    'template': 'layout',  # the parse_template_* methods stores the "layout" in "template"
-    'layout': 'layout',
-    'locations': 'location',
-    'locked': 'locked',
-    'name': 'name',
-    'organizations': 'organization',
-    'oses': 'os_family',  # the foreman community templates are using oses instead of os_family (which is wrong?)
-    'os_family': 'os_family',
-}
-# Missing parameters:
-# snippet
-# audit_comment
-# default
+import os
+
+from ansible.module_utils.foreman_helper import (
+    ForemanEntityApypieAnsibleModule,
+    parse_template,
+    parse_template_from_file,
+)
 
 
 def main():
-    module = ForemanEntityAnsibleModule(
+    module = ForemanEntityApypieAnsibleModule(
         argument_spec=dict(
-            # audit_comment=dict(),
-            layout=dict(),
             file_name=dict(type='path'),
-            locations=dict(type='list'),
-            locked=dict(type='bool'),
-            name=dict(),
-            organizations=dict(type='list'),
-            os_family=dict(choices=list(_OPERATING_SYSTEMS)),
             state=dict(default='present', choices=['absent', 'present_with_defaults', 'present']),
         ),
-        supports_check_mode=True,
+        entity_spec=dict(
+            layout=dict(),
+            locations=dict(type='entity_list', flat_name='location_ids'),
+            locked=dict(type='bool'),
+            name=dict(),
+            organizations=dict(type='entity_list', flat_name='organization_ids'),
+            os_family=dict(choices=[
+                'AIX',
+                'Altlinux',
+                'Archlinux',
+                'Debian',
+                'Freebsd',
+                'Gentoo',
+                'Junos',
+                'Redhat',
+                'Solaris',
+                'Suse',
+                'Windows',
+            ]),
+        ),
         mutually_exclusive=[
             ['file_name', 'layout'],
         ],
         required_one_of=[
             ['name', 'file_name', 'layout'],
         ],
-
     )
+
     # We do not want a layout text for bulk operations
     if module.params['name'] == '*':
         if module.params['file_name'] or module.params['layout']:
             module.fail_json(
                 msg="Neither file_name nor layout allowed if 'name: *'!")
 
-    (entity_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
     file_name = entity_dict.pop('file_name', None)
 
     if file_name or 'layout' in entity_dict:
@@ -312,6 +270,9 @@ def main():
             parsed_dict = parse_template_from_file(file_name, module)
         else:
             parsed_dict = parse_template(entity_dict['layout'], module)
+        parsed_dict['layout'] = parsed_dict.pop('template')
+        if 'oses' in parsed_dict:
+            parsed_dict['os_family'] = parsed_dict.pop('oses')
         # sanitize name from template data
         # The following condition can actually be hit, when someone is trying to import a
         # template with the name set to '*'.
@@ -331,52 +292,41 @@ def main():
             module.fail_json(
                 msg='No name specified and no filename to infer it.')
 
-    name = entity_dict['name']
-
-    affects_multiple = name == '*'
+    affects_multiple = entity_dict['name'] == '*'
     # sanitize user input, filter unuseful configuration combinations with 'name: *'
     if affects_multiple:
-        if state == 'present_with_defaults':
+        if module.state == 'present_with_defaults':
             module.fail_json(msg="'state: present_with_defaults' and 'name: *' cannot be used together")
-        if state == 'absent':
+        if module.desired_absent:
             if len(entity_dict.keys()) != 1:
-                module.fail_json(msg="When deleting all partition tables, there is no need to specify further parameters.")
+                module.fail_json(msg='When deleting all partition tables, there is no need to specify further parameters.')
 
     module.connect()
 
-    try:
-        if affects_multiple:
-            entities = find_entities(PartitionTable)
-        else:
-            entities = find_entities(PartitionTable, name=entity_dict['name'])
-    except Exception as e:
-        module.fail_json(msg='Failed to find entity: %s ' % e)
+    if affects_multiple:
+        entities = module.list_resource('ptables')
+        if not entities:
+            # Nothing to do; shortcut to exit
+            module.exit_json(changed=False)
+        if not module.desired_absent:  # not 'thin'
+            entities = [module.show_resource('ptables', entity['id']) for entity in entities]
+    else:
+        entity = module.find_resource_by_name('ptables', name=entity_dict['name'], failsafe=True)
 
-    # Set Locations of partition table
-    if 'locations' in entity_dict:
-        entity_dict['locations'] = find_entities_by_name(Location, entity_dict[
-            'locations'], module)
+    if not module.desired_absent:
+        if 'locations' in entity_dict:
+            entity_dict['locations'] = module.find_resources_by_title('locations', entity_dict['locations'], thin=True)
 
-    # Set Organizations of partition table
-    if 'organizations' in entity_dict:
-        entity_dict['organizations'] = find_entities_by_name(
-            Organization, entity_dict['organizations'], module)
-
-    entity_dict = sanitize_entity_dict(entity_dict, name_map)
+        if 'organizations' in entity_dict:
+            entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
     changed = False
     if not affects_multiple:
-        if len(entities) == 0:
-            entity = None
-        else:
-            entity = entities[0]
-        changed = naildown_entity_state(
-            PartitionTable, entity_dict, entity, state, module)
+        changed = module.ensure_entity_state('ptables', entity_dict, entity)
     else:
         entity_dict.pop('name')
         for entity in entities:
-            changed |= naildown_entity_state(
-                PartitionTable, entity_dict, entity, state, module)
+            changed |= module.ensure_entity_state('ptables', entity_dict, entity)
 
     module.exit_json(changed=changed)
 
