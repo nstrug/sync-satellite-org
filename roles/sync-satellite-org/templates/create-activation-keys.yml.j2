@@ -1,17 +1,17 @@
 #jinja2:variable_start_string:'[%' , variable_end_string:'%]'
 
 - name: Generate Activation Keys
-  katello_content_view:
+  katello_activation_key:
     server_url: "{{ target_foreman_server_url }}"
     username: "{{ target_foreman_username }}"
     password: "{{ target_foreman_password }}"
     verify_ssl: "{{ foreman_verify_ssl }}"
     name: "{{ item.Name }}"
-    auto_attach: "{{ item.'Auto Attach' }}"
-    content_view: "{{ item.'Content View' }}"
+    auto_attach: "{{ activation_key_info[i].'Auto Attach' }}"
+    content_view: "{{ activation_key_info[i].'Content View' }}"
     lifecycle_environment: "{{ item.'Lifecycle Environment' }}"
     name: "{{ item.Name }}"
-    subscriptions: "{{ activation_key_subscriptions[i] }}"
+    subscriptions: "{{ activation_key_subscriptions[i]|json_query(\"[*].Name\")  }}"
     organization: [% foreman_organization %]
     state: present
   loop: [% activation_keys %]
