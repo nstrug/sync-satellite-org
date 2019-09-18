@@ -37,3 +37,4 @@
   template:
     src: "templates/create-subnets.yml.j2"
     dest: "{{ output_dir }}/create-subnets.yml"
+  delegate_to: localhost

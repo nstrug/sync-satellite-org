@@ -17,4 +17,5 @@
   template:
     src: "templates/create-content-views.yml.j2"
     dest: "{{ output_dir + \"/create-content-view-\" + cv.name|replace(' ','_') + \".yml\" }}"
+  delegate_to: localhost
   tags: cv

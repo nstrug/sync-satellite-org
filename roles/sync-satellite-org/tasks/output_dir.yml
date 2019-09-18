@@ -3,3 +3,4 @@
   file:
     state: "directory"
     path: "{{ output_dir }}"
+  delegate_to: localhost

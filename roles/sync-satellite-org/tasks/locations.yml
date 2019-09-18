@@ -22,3 +22,4 @@
   template:
     src: "templates/create-locations.yml.j2"
     dest: "{{ output_dir }}/create-locations.yml"
+  delegate_to: localhost

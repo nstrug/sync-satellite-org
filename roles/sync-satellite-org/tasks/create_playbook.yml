@@ -3,18 +3,22 @@
   template:
     src: "templates/synchronise-satellite.yml.j2"
     dest: "{{ output_dir }}/synchronise-satellite.yml"
+  delegate_to: localhost
 
 - name: Create Inventory
   template:
     src: "templates/inventory.j2"
     dest: "{{ output_dir }}/inventory"
-
-- name: Copy Foreman Ansible modules
-  synchronize:
-    src: foreman-ansible-modules
-    dest: "{{ output_dir }}"
+  delegate_to: localhost
 
 - name: copy over ansible.cfg
   copy:
     src: "templates/ansible.cfg"
     dest: "{{ output_dir }}/ansible.cfg"
+  delegate_to: localhost
+
+- name: Copy Foreman Ansible modules
+  synchronize:
+    src: foreman-ansible-modules
+    dest: "rsync://localhost/{{ output_dir }}"
+  delegate_to: localhost

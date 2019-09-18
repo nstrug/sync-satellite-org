@@ -18,9 +18,11 @@
 - template:
     src: "templates/create-lifecycle-environment.yml.j2"
     dest: "{{ output_dir }}/create-lifecycle-environment.yml"
+  delegate_to: localhost
 - template:
     src: "templates/create-lifecycle-environments.yml.j2"
     dest: "{{ output_dir }}/create-lifecycle-environments.yml"
+  delegate_to: localhost
 
 # - fail:
 #   when: true

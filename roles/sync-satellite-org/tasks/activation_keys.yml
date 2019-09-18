@@ -41,6 +41,7 @@
   template:
     src: "templates/create-activation-keys.yml.j2"
     dest: "{{ output_dir }}/create-activation-keys.yml"
+  delegate_to: localhost
 
 # - name: Determine activation keys
 #   foreman_search_facts:
