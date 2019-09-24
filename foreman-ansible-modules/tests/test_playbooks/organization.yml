@@ -1,0 +1,32 @@
+---
+- hosts: fixtures
+  gather_facts: false
+  vars_files:
+    - vars/server.yml
+  tasks:
+  - include: tasks/organization.yml
+    vars:
+      organization_state: absent
+- hosts: tests
+  gather_facts: false
+  vars_files:
+    - vars/server.yml
+  tasks:
+  - include: tasks/organization.yml
+    vars:
+      organization_state: present
+      organization_description: test
+      expected_change: true
+  - include: tasks/organization.yml
+    vars:
+      organization_state: present
+      expected_change: true
+  - include: tasks/organization.yml
+    vars:
+      organization_state: present
+      expected_change: false
+  - include: tasks/organization.yml
+    vars:
+      organization_state: absent
+      expected_change: true
+...

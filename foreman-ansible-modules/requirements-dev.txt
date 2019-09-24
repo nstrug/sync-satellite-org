@@ -1,5 +1,8 @@
 pycodestyle
 pytest
 vcrpy
+ansible_runner
+mazer
 git+https://github.com/SatelliteQE/nailgun.git@master#egg=nailgun
--r requirements.txt
+git+https://github.com/Apipie/apypie.git@master#egg=apypie
+-r requirements-common.txt

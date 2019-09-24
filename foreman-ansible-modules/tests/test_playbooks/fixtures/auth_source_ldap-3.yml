@@ -1,0 +1,113 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+    method: GET
+    uri: https://centos7-foreman-1-22/api/status
+  response:
+    body: {string: !!python/unicode '{"result":"ok","status":200,"version":"1.22.0-RC2","api_version":2}'}
+    headers:
+      apipie-checksum: [9f3fe04d3a1b506370bbd7924e81c1ffa9070904]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-length: ['67']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Fri, 12 Jul 2019 12:23:06 GMT']
+      etag: [W/"a15604a8fd6a96137136604ae49efef3"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0-RC2]
+      server: [Apache]
+      set-cookie: [_session_id=0caabbb54e4d6faea677465e5cfa0b97; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [86aeaa78-652b-41c2-b2ea-ac4b360eaf30]
+      x-runtime: ['0.046021']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Cookie: [_session_id=0caabbb54e4d6faea677465e5cfa0b97]
+    method: GET
+    uri: https://centos7-foreman-1-22/api/auth_source_ldaps?per_page=4294967296&search=name%3D%22Example+LDAP%22&thin=True
+  response:
+    body: {string: !!python/unicode "{\n  \"total\": 1,\n  \"subtotal\": 1,\n  \"page\":
+        1,\n  \"per_page\": 4294967296,\n  \"search\": \"name=\\\"Example LDAP\\\"\",\n
+        \ \"sort\": {\n    \"by\": null,\n    \"order\": null\n  },\n  \"results\":
+        [{\"host\":\"ldap.example.com\",\"port\":389,\"account\":\"test\",\"base_dn\":\"uid\",\"ldap_filter\":\"(uid=%s)\",\"attr_login\":\"uid\",\"attr_firstname\":\"givenName\",\"attr_lastname\":\"sn\",\"attr_mail\":\"mail\",\"attr_photo\":null,\"onthefly_register\":true,\"usergroup_sync\":true,\"tls\":true,\"server_type\":\"free_ipa\",\"groups_base\":\"cn=groups,cn=accounts,dc=example,dc=com\",\"use_netgroups\":false,\"created_at\":\"2019-07-12
+        12:23:04 UTC\",\"updated_at\":\"2019-07-12 12:23:06 UTC\",\"id\":7,\"type\":\"AuthSourceLdap\",\"name\":\"Example
+        LDAP\",\"locations\":[{\"id\":123,\"name\":\"Test Location\",\"title\":\"Test
+        Location\",\"description\":null}],\"organizations\":[{\"id\":124,\"name\":\"Test
+        Organization\",\"title\":\"Test Organization\",\"description\":\"A test organization\"}]}]\n}\n"}
+    headers:
+      apipie-checksum: [9f3fe04d3a1b506370bbd7924e81c1ffa9070904]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Fri, 12 Jul 2019 12:23:06 GMT']
+      etag: [W/"b955227a3694be5f964c8c712925e4c7"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0-RC2]
+      server: [Apache]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [bfca444e-4dea-459c-8ee9-a05489695674]
+      x-runtime: ['0.046676']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Content-Length: ['0']
+      Cookie: [_session_id=0caabbb54e4d6faea677465e5cfa0b97]
+    method: DELETE
+    uri: https://centos7-foreman-1-22/api/auth_source_ldaps/7
+  response:
+    body: {string: !!python/unicode '{"id":7,"name":"Example LDAP","host":"ldap.example.com","port":389,"account":"test","account_password":"changeme","base_dn":"uid","attr_login":"uid","attr_firstname":"givenName","attr_lastname":"sn","attr_mail":"mail","onthefly_register":true,"tls":true,"created_at":"2019-07-12T12:23:04.817Z","updated_at":"2019-07-12T12:23:06.207Z","ldap_filter":"(uid=%s)","attr_photo":null,"server_type":"free_ipa","groups_base":"cn=groups,cn=accounts,dc=example,dc=com","usergroup_sync":true,"use_netgroups":false}'}
+    headers:
+      apipie-checksum: [9f3fe04d3a1b506370bbd7924e81c1ffa9070904]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Fri, 12 Jul 2019 12:23:06 GMT']
+      etag: [W/"1b010d8322d053e2b51d9f06f8b4f315"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0-RC2]
+      server: [Apache]
+      set-cookie: [request_method=DELETE; path=/; secure; HttpOnly; SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [7c1e6f2c-97a6-49a4-867f-714be78c089f]
+      x-runtime: ['0.065464']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+version: 1

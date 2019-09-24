@@ -1,0 +1,30 @@
+---
+# - name: Determine operating systems
+#   command: "hammer {{ foreman_connect_string }} os list"
+#   changed_when: false
+#   register: os
+# - debug:
+#     var: os
+#     verbosity: 2
+
+- name: Determine Operating Systems
+  foreman_search_facts:
+    username: "{{ foreman_username }}"
+    password: "{{ foreman_password }}"
+    server_url: "{{ foreman_server_url }}"
+    validate_certs: "{{ foreman_verify_ssl }}"
+    resource: operatingsystems
+    # search: organization={{foreman_organization}}
+  register: r
+  delegate_to: localhost
+- debug:
+    var: r
+    verbosity: 2
+- set_fact:
+    operatingsystems: "{{ r.resources }}"
+- debug:
+    var: operatingsystems
+    verbosity: 2
+
+# - fail:
+#     when: true

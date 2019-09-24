@@ -12,13 +12,14 @@
     username: "{{ foreman_username }}"
     password: "{{ foreman_password }}"
     server_url: "{{ foreman_server_url }}"
-    verify_ssl: "{{ foreman_verify_ssl }}"
+    validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ operating_system_name }}"
     release_name: "{{ operating_system_release_name }}"
     major: "{{ operating_system_major }}"
     minor: "{{ operating_system_minor }}"
     family: "{{ operating_system_family }}"
     password_hash: "{{ operating_system_password_hash }}"
+    parameters: "{{ operating_system_parameters | default(omit) }}"
     state: "{{ operating_system_state }}"
   register: result
 - fail:

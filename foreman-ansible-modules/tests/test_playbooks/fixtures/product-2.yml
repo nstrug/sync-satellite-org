@@ -1,0 +1,195 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+    method: GET
+    uri: https://centos7-katello-3-12/api/status
+  response:
+    body: {string: !!python/unicode '{"result":"ok","status":200,"version":"1.22.0","api_version":2}'}
+    headers:
+      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-length: ['63']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Mon, 29 Jul 2019 09:29:42 GMT']
+      etag: [W/"674e9dbc2140c688b559566b581c5c09"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      set-cookie: [_session_id=333a5705441bc48e1bfc2d8b4e847391; path=/; secure; HttpOnly;
+          SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [276ec903-82da-4187-b302-3e05e6c087b8]
+      x-runtime: ['0.029834']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Cookie: [_session_id=333a5705441bc48e1bfc2d8b4e847391]
+    method: GET
+    uri: https://centos7-katello-3-12/katello/api/organizations?per_page=4294967296&search=name%3D%22Test+Organization%22&thin=True
+  response:
+    body: {string: !!python/unicode "{\n  \"total\": 2,\n  \"subtotal\": 1,\n  \"page\":
+        1,\n  \"per_page\": 4294967296,\n  \"search\": \"name=\\\"Test Organization\\\"\",\n
+        \ \"sort\": {\n    \"by\": null,\n    \"order\": null\n  },\n  \"results\":
+        [{\"label\":\"Test_Organization\",\"created_at\":\"2019-07-29 09:29:33 UTC\",\"updated_at\":\"2019-07-29
+        09:29:33 UTC\",\"id\":13,\"name\":\"Test Organization\",\"title\":\"Test Organization\",\"description\":\"A
+        test organization\"}]\n}\n"}
+    headers:
+      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Mon, 29 Jul 2019 09:29:42 GMT']
+      etag: [W/"877ebc9ede4176a18d1305bc7ed788bf"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [345a10a5-f526-4b18-aa76-b62e587d7ef9]
+      x-runtime: ['0.016299']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Cookie: [_session_id=333a5705441bc48e1bfc2d8b4e847391]
+    method: GET
+    uri: https://centos7-katello-3-12/katello/api/organizations/13/products?per_page=4294967296&search=name%3D%22Test+Product%22&thin=False
+  response:
+    body: {string: !!python/unicode '{"total":1,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Test
+        Product\"","sort":{"by":"name","order":"asc"},"results":[{"id":2,"cp_id":"332649891643","name":"Test
+        Product","label":"Test_Product","description":"A happy little test product","provider_id":5,"sync_plan_id":null,"sync_summary":{},"gpg_key_id":null,"ssl_ca_cert_id":null,"ssl_client_cert_id":null,"ssl_client_key_id":null,"sync_state":null,"last_sync":null,"last_sync_words":null,"organization_id":13,"organization":{"name":"Test
+        Organization","label":"Test_Organization","id":13},"sync_plan":null,"repository_count":0}]}
+
+'}
+    headers:
+      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Mon, 29 Jul 2019 09:29:42 GMT']
+      etag: [W/"a69304684ee02b3396ed28041b4798e8"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [ff35790d-5f2b-4025-b176-14b8ebb966e6]
+      x-runtime: ['0.037352']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Cookie: [_session_id=333a5705441bc48e1bfc2d8b4e847391]
+    method: GET
+    uri: https://centos7-katello-3-12/katello/api/products/2?organization_id=13
+  response:
+    body: {string: !!python/unicode '  {"redhat":false,"id":2,"cp_id":"332649891643","name":"Test
+        Product","label":"Test_Product","description":"A happy little test product","provider_id":5,"sync_plan_id":null,"sync_summary":{},"gpg_key_id":null,"ssl_ca_cert_id":null,"ssl_client_cert_id":null,"ssl_client_key_id":null,"sync_state":null,"last_sync":null,"last_sync_words":null,"organization_id":13,"organization":{"name":"Test
+        Organization","label":"Test_Organization","id":13},"sync_plan":null,"repository_count":0,"created_at":"2019-07-29
+        09:29:39 UTC","updated_at":"2019-07-29 09:29:39 UTC","product_content":[],"available_content":[],"repositories":[],"provider":{"name":"Anonymous"},"sync_status":{"id":null,"product_id":null,"progress":null,"sync_id":null,"state":null,"raw_state":null,"start_time":null,"finish_time":null,"duration":null,"display_size":null,"size":null,"is_running":null,"error_details":null},"permissions":{"view_products":true,"edit_products":true,"destroy_products":true,"sync_products":true},"published_content_view_ids":[],"active_task_count":0}
+
+'}
+    headers:
+      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Mon, 29 Jul 2019 09:29:42 GMT']
+      etag: [W/"64b70d11bb152886abd6e0cc18860ec6"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [3c409594-8dbf-4422-b2c5-b4ea43a2ea70]
+      x-runtime: ['0.046772']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"description": "A product with an updated description"}'
+    headers:
+      Accept: [application/json;version=2]
+      Content-Length: ['56']
+      Content-Type: [application/json]
+      Cookie: [_session_id=333a5705441bc48e1bfc2d8b4e847391]
+    method: PUT
+    uri: https://centos7-katello-3-12/katello/api/products/2
+  response:
+    body: {string: !!python/unicode '  {"redhat":false,"id":2,"cp_id":"332649891643","name":"Test
+        Product","label":"Test_Product","description":"A product with an updated description","provider_id":5,"sync_plan_id":null,"sync_summary":{},"gpg_key_id":null,"ssl_ca_cert_id":null,"ssl_client_cert_id":null,"ssl_client_key_id":null,"sync_state":null,"last_sync":null,"last_sync_words":null,"organization_id":13,"organization":{"name":"Test
+        Organization","label":"Test_Organization","id":13},"sync_plan":null,"repository_count":0,"created_at":"2019-07-29
+        09:29:39 UTC","updated_at":"2019-07-29 09:29:42 UTC","product_content":[],"available_content":[],"repositories":[],"provider":{"name":"Anonymous"},"sync_status":{"id":null,"product_id":null,"progress":null,"sync_id":null,"state":null,"raw_state":null,"start_time":null,"finish_time":null,"duration":null,"display_size":null,"size":null,"is_running":null,"error_details":null},"permissions":{"view_products":true,"edit_products":true,"destroy_products":true,"sync_products":true},"published_content_view_ids":[],"active_task_count":0}
+
+'}
+    headers:
+      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Mon, 29 Jul 2019 09:29:42 GMT']
+      etag: [W/"08ae82bd668d20103c5226a5ca0d1525"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      set-cookie: [request_method=PUT; path=/; secure; HttpOnly; SameSite=Lax]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [34e30181-9566-4d82-b719-3749fdfd2f53]
+      x-runtime: ['0.340708']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+version: 1

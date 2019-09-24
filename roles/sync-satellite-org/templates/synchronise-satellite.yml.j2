@@ -1,0 +1,17 @@
+#jinja2:variable_start_string:'[%' , variable_end_string:'%]'
+
+---
+- name: Synchronise Target Satellite
+  hosts: target
+  become: true
+  vars:
+    foreman_connect_string: "--output json -s {{ target_foreman_server_url }} -u {{ target_foreman_username }} -p {{ target_foreman_password }}"
+    target_foreman_server_url: "{{ \"https://\" + inventory_hostname }}"
+  tasks:
+  - include_tasks: create-locations.yml
+  - include_tasks: create-domains.yml
+  - include_tasks: create-subnets.yml
+  - include_tasks: create-lifecycle-environments.yml
+  - include_tasks: "{{ output_dir + \"/create-content-view-\" + cv.Name + \".yml\" }}"
+    loop: [% content_views %]
+  - include_tasks: create-activation-keys.yml

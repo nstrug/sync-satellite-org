@@ -1,0 +1,38 @@
+---
+- include_tasks: output_dir.yml
+- include_tasks: locations.yml
+- include_tasks: domains.yml
+- include_tasks: subnets.yml
+- include_tasks: lifecycle_environments.yml
+- include_tasks: repos.yml
+- include_tasks: content_views.yml
+- include_tasks: activation_keys.yml
+- include_tasks: partition_tables.yml
+- include_tasks: templates.yml
+- include_tasks: operating_systems.yml
+- include_tasks: hostgroups.yml
+- include_tasks: create_playbook.yml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

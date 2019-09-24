@@ -1,0 +1,30 @@
+---
+# - name: Determine hostgroups
+#   command: "hammer {{ foreman_connect_string }} hostgroup list --organization \"{{ foreman_organization }}\""
+#   changed_when: false
+#   register: hostgroups
+# - debug:
+#     var: hostgroups
+#     verbosity: 2
+
+- name: Determine Hostgroups
+  foreman_search_facts:
+    username: "{{ foreman_username }}"
+    password: "{{ foreman_password }}"
+    server_url: "{{ foreman_server_url }}"
+    validate_certs: "{{ foreman_verify_ssl }}"
+    resource: hostgroups
+    # search: organization={{foreman_organization}}
+  register: r
+  delegate_to: localhost
+- debug:
+    var: r
+    verbosity: 2
+- set_fact:
+    hostgroups: "{{ r.resources }}"
+- debug:
+    var: hostgroups
+    verbosity: 2
+
+# - fail:
+#     when: true

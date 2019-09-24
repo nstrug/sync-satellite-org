@@ -16,7 +16,7 @@
     username: "{{ foreman_username }}"
     password: "{{ foreman_password }}"
     server_url: "{{ foreman_server_url }}"
-    verify_ssl: "{{ foreman_verify_ssl }}"
+    validate_certs: "{{ foreman_validate_certs }}"
     name: "{{ activation_key_name }}"
     organization: "{{ activation_key_organization }}"
     lifecycle_environment: "{{ activation_key_lifecycle_environment }}"
@@ -24,6 +24,7 @@
     subscriptions: "{{ activation_key_subscriptions }}"
     content_overrides: "{{ activation_key_content_overrides }}"
     auto_attach: "{{ activation_key_auto_attach }}"
+    host_collections: "{{ activation_key_host_collections | default(omit) }}"
     state: "{{ activation_key_state }}"
   register: result
 - fail:

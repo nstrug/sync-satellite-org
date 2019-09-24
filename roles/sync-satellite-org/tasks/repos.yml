@@ -1,0 +1,40 @@
+---
+# - name: Lookup repos
+#   command: "hammer {{ foreman_connect_string }} repository list --organization \"{{ foreman_organization }}\""
+#   changed_when: false
+#   register: r
+#   tags: repos
+# - debug:
+#     var: r
+#     verbosity: 2
+#   tags: repos
+# - name: Parse repos
+#   set_fact:
+#     repos: "{{ r.stdout | from_json }}"
+#   tags: repos
+# - debug:
+#     var: repos
+#     verbosity: 1
+#   tags: repos
+
+- name: Lookup repos
+  foreman_search_facts:
+    username: "{{ foreman_username }}"
+    password: "{{ foreman_password }}"
+    server_url: "{{ foreman_server_url }}"
+    validate_certs: "{{ foreman_verify_ssl }}"
+    resource: repositories
+    # search: organization_id=1
+  register: r
+  delegate_to: localhost
+- debug:
+    var: r
+    verbosity: 2
+- set_fact:
+    repositories: "{{ r.resources }}"
+- debug:
+    var: repositories
+    verbosity: 2  
+
+# - fail:
+#   when: true
