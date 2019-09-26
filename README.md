@@ -98,6 +98,11 @@ Install the apypie library in the virtual environment
 pip install apypie
 ```
 
+Deactivate the virtual environment:
+```
+deactivate
+```
+
 Add the virtual environment as python interpreter for localhost in the inventory:
 ```
 ...
@@ -108,3 +113,5 @@ localhost
 ansible_python_interpreter=./foreman_ansible_venv/bin/python
 ...
 ```
+
+
