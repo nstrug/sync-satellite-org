@@ -77,4 +77,34 @@ foreman_verify_ssl=true
 
 MULTIPLE target satellites can be specified, however the same username and password will be used on all of them.
 
+## python virtual environments
 
+This describes how to use python virtual environments instead of installing all python requirements in the local python.
+
+### Setup a virtual env
+
+Create the virtual environment:
+```
+virtualenv --system-site-packages foreman_ansible_venv
+```
+
+Activate the virtual environment:
+```
+source foreman_ansible_venv/bin/activate
+```
+
+Install the apypie library in the virtual environment
+```
+pip install apypie
+```
+
+Add the virtual environment as python interpreter for localhost in the inventory:
+```
+...
+[localhost]
+localhost
+
+[localhost:vars]
+ansible_python_interpreter=./foreman_ansible_venv/bin/python
+...
+```
