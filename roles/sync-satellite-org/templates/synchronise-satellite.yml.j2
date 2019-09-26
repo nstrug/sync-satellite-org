@@ -3,7 +3,6 @@
 ---
 - name: Synchronise Target Satellite
   hosts: target
-  become: true
   vars:
     foreman_connect_string: "--output json -s {{ target_foreman_server_url }} -u {{ target_foreman_username }} -p {{ target_foreman_password }}"
     target_foreman_server_url: "{{ \"https://\" + inventory_hostname }}"
