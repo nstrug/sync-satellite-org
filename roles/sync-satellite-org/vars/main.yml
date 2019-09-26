@@ -1,3 +1,4 @@
 ---
 foreman_connect_string: "--output json -s {{ foreman_server_url }} -u {{ foreman_username }} -p {{ foreman_password }}"
 output_dir: /tmp/sync-satellite-org
+foreman_server_url: "https://{{ groups['satellite'][0] }}"
