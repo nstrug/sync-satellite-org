@@ -5,7 +5,6 @@ server.example.com
 
 [satellite:vars]
 foreman_organization=source_organisation
-foreman_server_url=https://server.example.com/
 foreman_username=source_satellite_username
 foreman_password=source_satellite_password
 foreman_verify_ssl=true
