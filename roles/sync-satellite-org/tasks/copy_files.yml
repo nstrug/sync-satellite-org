@@ -2,7 +2,7 @@
 - name: Create Inventory
   template:
     src: "templates/inventory.j2"
-    dest: "{{ output_dir }}/inventory"
+    dest: "{{ output_dir }}/inventory.example"
   delegate_to: localhost
 
 - name: copy over ansible.cfg
