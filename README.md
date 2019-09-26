@@ -29,6 +29,25 @@ The following python packages need to be installed:
 
 * apypie
 
+The APYPIE library can be installed by following procedure
+
+RHEL 7
+1) Find Python version:
+`env python`
+
+2) Install pip version for the default python version:
+`sudo -i yum install python27-python-pip-8.1.2-3.el7.noarch`
+
+3) Enable relevant software collection:
+`sudo scl enable python27 bash`
+
+4) Install APYPIE:
+`pip install apypie`
+
+Fedora
+1) Install APYPIE:
+`pip3 install apypie`
+
 ## Running the Playbook
 
 ### Inventory
