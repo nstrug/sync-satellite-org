@@ -4,15 +4,16 @@
 # We have to delete and re-create - not great tbh
 
 # - name: Determine existing lifecycle environments
-#   command: "hammer {{ foreman_connect_string }} lifecycle-environment list --organization \"[% foreman_organization %]\""
+##   would need different forman_connect_string 
+#   command: "hammer {{ foreman_connect_string }} lifecycle-environment list --organization \"[% target_foreman_organization %]\""
 #   changed_when: false
 #   register: r
 
 - name: Determine existing lifecycle environments
   foreman_search_facts:
-    username: "{{ foreman_username }}"
-    password: "{{ foreman_password }}"
-    server_url: "{{ foreman_server_url }}"
+    username: "{{ target_foreman_username }}"
+    password: "{{ target_foreman_password }}"
+    server_url: "{{ target_foreman_server_url }}"
     validate_certs: "{{ foreman_verify_ssl }}"
     resource: lifecycle_environments
     search: organization_id=1
@@ -24,7 +25,7 @@
 # - name: Delete Lifecycle Environments
 #   command: >-
 #     hammer lifecycle-environment delete
-#     --name {{ item.Name }} --organization [% foreman_organization %]
+#     --name {{ item.Name }} --organization [% target_foreman_organization %]
 #   loop: [% lifecycle_environments %]
 #   when: item.Name in target_lifecycle_environments and item.Name != 'Library'
 
@@ -36,7 +37,7 @@
     verify_ssl: "{{ foreman_verify_ssl }}"
     name: "{{ item.name }}"
     prior: "{{ item.prior }}"
-    organization: [% foreman_organization %]
+    organization: [% target_foreman_organization %]
     state: absent
   loop: target_lifecycle_environments 
   when: item.Name != 'Library'

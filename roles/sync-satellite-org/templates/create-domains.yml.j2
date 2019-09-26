@@ -9,7 +9,7 @@
     name: "{{ item.Name }}"
     dns_proxy: "{{ ansible_fqdn }}"
     organizations:
-      - [% foreman_organization %]
+      - [% target_foreman_organization %]
     locations: "{{ item.Locations | json_query('[*].Name') }}"
     state: present
   loop: [% domain_info %]
