@@ -1,0 +1,4 @@
+#Example inventory file. Please note verify_ssl needs to be false for selfsigned certificates
+
+[satellite]
+server.example.com env:foreman_organization=your_organization env:foreman_server_url=server.example.com env:foreman_username=your_username env:foreman_password=your_password env:foreman_verify_ssl=true
