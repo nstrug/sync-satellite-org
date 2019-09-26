@@ -8,7 +8,7 @@
     validate_certs: "{{ foreman_verify_ssl }}"
     name: "{{ item.name }}"
     organizations:
-      - [% foreman_organization %]
+      - [% target_foreman_organization %]
     state: present
   loop: [% locations %]
   delegate_to: localhost

@@ -25,7 +25,7 @@
     verify_ssl: "{{ foreman_verify_ssl }}"
     name: "{{ item.name }}"
     prior: "{{ item.prior }}"
-    organization: [% foreman_organization %]
+    organization: [% target_foreman_organization %]
     state: present
   loop: [% lifecycle_environments %]
 

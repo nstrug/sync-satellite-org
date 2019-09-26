@@ -12,7 +12,7 @@
     lifecycle_environment: "{{ item.'Lifecycle Environment' }}"
     name: "{{ item.Name }}"
     subscriptions: "{{ activation_key_subscriptions[i]|json_query(\"[*].Name\")  }}"
-    organization: [% foreman_organization %]
+    organization: [% target_foreman_organization %]
     state: present
   loop: [% activation_keys %]
   loop_control:

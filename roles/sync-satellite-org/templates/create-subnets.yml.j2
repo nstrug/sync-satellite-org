@@ -27,7 +27,7 @@
     network: "{{ item.network }}"
     domains: "{{ (subnet_info|json_query(\"[?Id==`\"item.id\"`].Domains\"))[0]|default(\"\") }}"
     organizations:
-      - [% foreman_organization %]
+      - [% target_foreman_organization %]
     locations: "{{ (subnet_info|json_query(\"[?Id==`\"item.id\"`].Locations\"))[0]|default(\"\") }}"
     state: present
   loop: [% subnets %]
@@ -42,7 +42,7 @@
 #       hammer -s {{ target_foreman_server_url }} -u {{ target_foreman_username }} -p {{ target_foreman_password }}
 #       subnet create --boot-mode {{ item['Boot Mode'] }} --dhcp-id 1 --dns-id 1 --domains {{ item.Domains | json_query('[*].Name')|join(',') }}
 #       --from {{ item['Start of IP Range'] }} --ipam {{ (item.IPAM == 'None')|ternary(omit,item.IPAM) }} --locations {{ item.Locations | json_query('[*].Name')|join(',') }}
-#       --mtu {{ item.MTU|int }} --name {{ item.Name }} --network {{ item['Network Addr'] }} --network-type {{ item.Protocol }} --organization [% foreman_organization %]
+#       --mtu {{ item.MTU|int }} --name {{ item.Name }} --network {{ item['Network Addr'] }} --network-type {{ item.Protocol }} --organization [% target_foreman_organization %]
 #       --tftp-id 1 --to {{ item['End of IP Range'] }} --vlanid {{ item['VLAN ID']|int }} --dns-primary {{ item['Primary DNS'] }} --dns-secondary {{ item['Secondary DNS'] }}
 #       --mask {{ item['Network Mask'] }}
 #   loop: [% subnet_info %]

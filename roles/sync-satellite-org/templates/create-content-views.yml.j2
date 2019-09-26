@@ -8,7 +8,7 @@
     verify_ssl: "{{ foreman_verify_ssl }}"
     name: "{{ item.Name }}"
     repositories: [% cv_lookup %]
-    organization: [% foreman_organization %]
+    organization: [% target_foreman_organization %]
     state: present
 
 
