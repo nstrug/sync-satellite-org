@@ -4,7 +4,6 @@ import os
 import sys
 import vcr
 import json
-import re
 
 
 # We need our own json level2 matcher, because, python2 and python3 do not save
@@ -20,7 +19,8 @@ def body_json_l2_matcher(r1, r2):
                 body1['common_parameter']['value'] = json.loads(body1['common_parameter'].get('value'))
                 body2['common_parameter']['value'] = json.loads(body2['common_parameter'].get('value'))
         return body1 == body2
-    elif r1.headers.get('content-type') == r2.headers.get('content-type') == 'multipart/form-data':
+    elif (r1.headers.get('content-type') == r2.headers.get('content-type')
+            and r1.headers.get('content-type') in ['multipart/form-data', 'application/x-www-form-urlencoded']):
         if r1.body is None or r2.body is None:
             return r1.body == r2.body
         body1 = sorted(r1.body.replace(b'~', b'%7E').split(b'&'))
@@ -100,7 +100,7 @@ else:
     # Call the original python script with vcr-cassette in place
     fam_vcr = vcr.VCR()
 
-    if test_params['test_name'] in ['domain', 'hostgroup', 'realm']:
+    if test_params['test_name'] in ['domain', 'hostgroup', 'katello_hostgroup', 'luna_hostgroup', 'realm']:
         fam_vcr.register_matcher('query_ignore_proxy', query_matcher_ignore_proxy)
         query_matcher = 'query_ignore_proxy'
     elif test_params['test_name'] == 'snapshot':
@@ -121,8 +121,9 @@ else:
 
     with fam_vcr.use_cassette(cassette_file,
                               record_mode=test_params['record_mode'],
-                              match_on=['method', 'scheme', 'port', 'path', query_matcher, body_matcher],
+                              match_on=['method', 'path', query_matcher, body_matcher],
                               filter_headers=['Authorization'],
+                              decode_compressed_response=True,
                               ):
         with open(sys.argv[0]) as f:
             code = compile(f.read(), sys.argv[0], 'exec')

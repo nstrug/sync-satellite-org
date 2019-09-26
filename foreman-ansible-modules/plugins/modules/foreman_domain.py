@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: foreman_domain
@@ -25,31 +33,30 @@ description:
   - Create and Delete Foreman Domains using Foreman API
 author:
   - "Markus Bucher (@m-bucher) ATIX AG"
-requirements:
-  - "apypie"
 options:
   name:
     description: The full DNS domain name
     required: true
+    type: str
   dns_proxy:
     aliases:
       - dns
     description: DNS proxy to use within this domain for managing A records
     required: false
+    type: str
   description:
     aliases:
       - fullname
     description: Full name describing the domain
     required: false
+    type: str
   locations:
     description: List of locations the domain should be assigned to
     required: false
-    default: None
     type: list
   organizations:
     description: List of organizations the domain should be assigned to
     required: false
-    default: None
     type: list
   parameters:
     description:
@@ -57,11 +64,12 @@ options:
     required: false
     type: list
     elements: dict
-    options:
+    suboptions:
       name:
         description:
           - Name of the parameter
         required: true
+        type: str
       value:
         description:
           - Value of the parameter
@@ -80,10 +88,12 @@ options:
           - 'hash'
           - 'yaml'
           - 'json'
+        type: str
   state:
     description: domain presence
     default: present
     choices: ["present", "absent"]
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -104,11 +114,11 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule, parameter_entity_spec
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule, parameter_entity_spec
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             description=dict(aliases=['fullname'], flat_name='fullname'),
@@ -149,5 +159,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#  vim: set sts=4 ts=8 sw=4 ft=python et noro norl cin si ai :

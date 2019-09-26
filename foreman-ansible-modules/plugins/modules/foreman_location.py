@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: foreman_location
@@ -25,16 +33,16 @@ description:
   - Manage Foreman Location
 author:
   - "Matthias M Dellweg (@mdellweg) ATIX AG"
-requirements:
-  - apypie
 options:
   name:
     description:
       - Name or Title of the Foreman Location
     required: true
+    type: str
   parent:
     description:
       - Title of a parent Location for nesting
+    type: str
   organizations:
     description:
       - List of organizations the location should be assigned to
@@ -46,6 +54,7 @@ options:
     choices:
       - present
       - absent
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -95,13 +104,13 @@ RETURN = ''' # '''
 
 from ansible.module_utils.foreman_helper import (
     build_fqn,
-    ForemanEntityApypieAnsibleModule,
+    ForemanEntityAnsibleModule,
     split_fqn,
 )
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             parent=dict(type='entity', flat_name='parent_id'),
@@ -122,8 +131,7 @@ def main():
             module.fail_json(msg="Please specify the parent either separately, or as part of the title.")
         parent = entity_dict['parent']
     if parent:
-        search_string = 'title="{}"'.format(parent)
-        entity_dict['parent'] = module.find_resource('locations', search=search_string, thin=True, failsafe=module.desired_absent)
+        entity_dict['parent'] = module.find_resource_by_title('locations', parent, thin=True, failsafe=module.desired_absent)
 
         if module.desired_absent and entity_dict['parent'] is None:
             # Parent location does not exist so just exit here
@@ -133,7 +141,7 @@ def main():
         if 'organizations' in entity_dict:
             entity_dict['organizations'] = module.find_resources_by_name('organizations', entity_dict['organizations'], thin=True)
 
-    entity = module.find_resource('locations', search='title="{}"'.format(build_fqn(name, parent)), failsafe=True)
+    entity = module.find_resource_by_title('locations', build_fqn(name, parent), failsafe=True)
 
     changed = module.ensure_entity_state('locations', entity_dict, entity)
 

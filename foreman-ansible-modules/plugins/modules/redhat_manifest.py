@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: redhat_manifest
@@ -29,20 +37,25 @@ options:
   name:
     description:
       - Manifest Name
+    type: str
   uuid:
     description:
       - Manifest uuid
+    type: str
   username:
     description:
       - Username on Foreman server
     required: true
+    type: str
   password:
     description:
       - Password for user accessing Foreman server
     required: true
+    type: str
   pool_id:
     description:
       - Subscription pool_id
+    type: str
   quantity:
     description:
       - quantity of pool_id Subscriptions
@@ -54,6 +67,7 @@ options:
     choices:
       - present
       - absent
+    type: str
   state:
     description:
       - Manifest state
@@ -61,6 +75,7 @@ options:
     choices:
       - present
       - absent
+    type: str
   path:
     description:
       - path to export the manifest
@@ -74,6 +89,7 @@ options:
     description:
       - Red Hat Portal subscription access address
     default: https://subscription.rhn.redhat.com
+    type: str
 '''
 
 EXAMPLES = '''
@@ -109,11 +125,12 @@ import json
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import fetch_url
-from ansible.module_utils.pycompat24 import get_exception
 from ansible.module_utils._text import to_text
 
 
-def fetch_portal(module, path, method, data={}, accept_header='application/json'):
+def fetch_portal(module, path, method, data=None, accept_header='application/json'):
+    if data is None:
+        data = {}
     url = module.params['portal'] + path
     headers = {'accept': accept_header,
                'content-type': 'application/json'}
@@ -121,7 +138,7 @@ def fetch_portal(module, path, method, data={}, accept_header='application/json'
     if resp is None:
         try:
             error = json.loads(info['body'])['displayMessage']
-        except:
+        except Exception:
             error = info['msg']
         module.fail_json(msg="%s to %s failed, got %s" % (method, url, error))
     return resp, info
@@ -142,7 +159,7 @@ def create_manifest(module):
 def delete_manifest(module, uuid):
     path = "/subscription/consumers/%s" % uuid
     resp, info = fetch_portal(module, path, 'DELETE')
-    if not info['status'] == 204:
+    if info['status'] != 204:
         module.fail_json(msg="Got status %s attempting to delete manifest, expected 204" % (info['status']))
 
 
@@ -235,8 +252,7 @@ def export_manifest(module, manifest):
                     if not data:
                         break
                     f.write(data)
-    except Exception:
-        e = get_exception()
+    except Exception as e:
         module.fail_json(msg="Failure downloading manifest, %s" % (e))
 
 
@@ -259,7 +275,6 @@ def main():
         supports_check_mode=True,
     )
 
-    name = module.params['name']
     username = module.params['username']
     password = module.params['password']
 

@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: foreman_snapshot
@@ -28,26 +36,28 @@ description:
   - "See: U(https://github.com/ATIX-AG/foreman_snapshot_management)"
 author:
   - "Manisha Singhal (@Manisha15) ATIX AG"
-requirements:
-    - "apypie"
 options:
   name:
     description:
       - Name of Snapshot
     required: true
+    type: str
   description:
     description:
       - Description of Snapshot
     required: false
+    type: str
   host:
     description:
       - Name of related Host
     required: true
+    type: str
   state:
     description:
       - State of Snapshot
     default: present
     choices: ["present", "reverted", "absent"]
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -93,11 +103,11 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         argument_spec=dict(
             host=dict(required=True),
             state=dict(default='present', choices=['present', 'absent', 'reverted']),

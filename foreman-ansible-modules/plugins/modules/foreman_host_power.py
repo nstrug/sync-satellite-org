@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
-
 
 DOCUMENTATION = '''
 ---
@@ -31,20 +34,29 @@ description:
   - "This beta version can start and stop an existing foreman host and question the current power state."
 author:
   - "Bernhard Hopfenmueller (@Fobhep) ATIX AG"
-requirements:
-  - "nailgun >= 0.29.0"
+  - "Baptiste Agasse (@bagasse)"
 options:
-  hostname:
-    description:
-      - fqdn of host
+  name:
+    description: Name (FQDN) of the host
     required: true
-  power_state:
+    aliases:
+      - hostname
+    type: str
+  state:
     description: Desired power state
-    type: list
+    default: state
     choices:
-      - on
-      - off
-      - state
+      - 'on'
+      - 'start'
+      - 'off'
+      - 'stop'
+      - 'soft'
+      - 'reboot'
+      - 'cycle'
+      - 'reset'
+      - 'state'
+      - 'status'
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -83,45 +95,35 @@ RETURN = '''
 power_state:
     description: current power state of host
     returned: always
-    type: string
+    type: str
     sample: "off"
  '''
 
-try:
-    from nailgun.entities import (
-        Host,
-    )
-
-    from ansible.module_utils.ansible_nailgun_cement import (
-        find_host,
-        ForemanEntityAnsibleModule,
-        naildown_power_state,
-        query_power_state,
-    )
-except ImportError:
-    pass
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 def main():
     module = ForemanEntityAnsibleModule(
-        argument_spec=dict(
-            hostname=dict(required=True),
-            state=dict(default='present', choices=['on', 'off', 'state']),
+        entity_spec=dict(
+            name=dict(aliases=['hostname'], required=True),
+            state=dict(default='state', choices=['on', 'start', 'off', 'stop', 'soft', 'reboot', 'cycle', 'reset', 'state', 'status']),
         ),
     )
 
-    (host_dict, state) = module.parse_params()
+    entity_dict = module.clean_params()
 
     module.connect()
 
-    entity = find_host(module, host_dict['hostname'], failsafe=True)
-
-    if state == 'state':
-        power_state = query_power_state(module, entity)
-        module.exit_json(changed=False, power_state=power_state)
-
+    params = {'id': entity_dict['name']}
+    _power_state_changed, power_state = module.resource_action('hosts', 'power_status', params=params)
+    if module.state in ['state', 'status']:
+        module.exit_json(changed=False, power_state=power_state['state'])
+    elif ((module.state in ['on', 'start'] and power_state['state'] == 'on')
+          or (module.state in ['off', 'stop'] and power_state['state'] == 'off')):
+        module.exit_json(changed=False)
     else:
-        changed = naildown_power_state(module, entity, state)
+        params['power_action'] = module.state
+        changed, power_state = module.resource_action('hosts', 'power', params=params)
         module.exit_json(changed=changed)
 
 

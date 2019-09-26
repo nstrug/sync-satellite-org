@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: foreman_installation_medium
@@ -25,8 +33,6 @@ description:
   - Create and Delete Foreman Installation Medium using Foreman API
 author:
   - "Manuel Bonk(@manuelbonk) ATIX AG"
-requirements:
-  - apypie
 options:
   name:
     description:
@@ -34,6 +40,7 @@ options:
         The full installation medium name.
         The special name "*" (only possible as parameter) is used to perform bulk actions (modify, delete) on all existing partition tables.
     required: true
+    type: str
   locations:
     description: List of locations the installation medium should be assigned to
     required: false
@@ -53,20 +60,28 @@ options:
       - AIX
       - Altlinux
       - Archlinux
+      - Coreos
       - Debian
       - Freebsd
       - Gentoo
       - Junos
+      - NXOS
+      - Rancheros
       - Redhat
       - Solaris
       - Suse
+      - VRP
       - Windows
+      - Xenserver
+    type: str
   path:
     description: Path to the installation medium
+    type: str
   state:
     description: installation medium presence
     default: present
     choices: ["present", "absent"]
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -89,17 +104,18 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             locations=dict(type='entity_list', flat_name='location_ids'),
             organizations=dict(type='entity_list', flat_name='organization_ids'),
             operatingsystems=dict(type='entity_list', flat_name='operatingsystem_ids'),
-            os_family=dict(),
+            os_family=dict(choices=['AIX', 'Altlinux', 'Archlinux', 'Coreos', 'Debian', 'Freebsd', 'Gentoo', 'Junos', 'NXOS',
+                                    'Rancheros', 'Redhat', 'Solaris', 'Suse', 'VRP', 'Windows', 'Xenserver']),
             path=dict(),
         ),
     )
@@ -116,7 +132,8 @@ def main():
             module.fail_json(msg="'state: present_with_defaults' and 'name: *' cannot be used together")
         if module.desired_absent:
             if list(entity_dict.keys()) != ['name']:
-                module.fail_json(msg='When deleting all installation media, there is no need to specify further parameters %s ' % entity_dict.keys())
+                entity_dict.pop('name', None)
+                module.fail_json(msg='When deleting all installation media, there is no need to specify further parameters: %s ' % entity_dict.keys())
 
     if affects_multiple:
         entities = module.list_resource('media')
@@ -153,5 +170,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#  vim: set sts=4 ts=8 sw=4 ft=python et noro norl cin si ai :

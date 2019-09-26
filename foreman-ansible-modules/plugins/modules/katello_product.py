@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: katello_product
@@ -26,41 +34,47 @@ description:
 author:
     - "Eric D Helms (@ehelms)"
     - "Matthias Dellweg (@mdellweg) ATIX AG"
-requirements:
-    - apypie
 options:
   name:
     description:
       - Name of the Katello product
     required: true
+    type: str
   organization:
     description:
       - Organization that the Product is in
     required: true
+    type: str
   label:
     description:
       - Label to show the user
     required: false
+    type: str
   gpg_key:
     description:
     - Content GPG key name attached to this product
     required: false
+    type: str
   sync_plan:
     description:
       - Sync plan name attached to this product
     required: false
+    type: str
   description:
     description:
       - Possibly long descriptionto show the user in detail view
     required: false
+    type: str
   state:
     description:
       - State of the Product
+      - C(present_with_defaults) will ensure the entity exists, but won't update existing ones
     default: present
     choices:
       - present
       - absent
       - present_with_defaults
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -89,11 +103,11 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 
-from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
 
 
 def main():
-    module = KatelloEntityApypieAnsibleModule(
+    module = KatelloEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             label=dict(),

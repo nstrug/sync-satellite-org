@@ -1,7 +1,0 @@
----
-domain_name: "example.com"
-domain_locations:
-  - 'Test Location'
-domain_organizations:
-  - 'Test Organization'
-...

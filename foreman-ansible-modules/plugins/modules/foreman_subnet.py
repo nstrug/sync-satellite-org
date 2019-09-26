@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: foreman_subnet
@@ -26,88 +34,102 @@ description:
 author:
   - "Baptiste Agasse (@bagasse)"
 requirements:
-  - apypie
+  - ipaddress
 options:
   name:
     description: Subnet name
     required: true
+    type: str
   network_type:
     description: Subnet type
     default: IPv4
     choices: ["IPv4", "IPv6"]
+    type: str
   dns_primary:
     description: Primary DNS server for this subnet
     required: false
+    type: str
   dns_secondary:
     description: Secondary DNS server for this subnet
     required: false
+    type: str
   domains:
     description: List of DNS domains the subnet should assigned to
     required: false
-    default: None
     type: list
   gateway:
     description: Subnet gateway IP address
     required: false
+    type: str
   network:
     description: Subnet IP address
     required: true
+    type: str
   cidr:
     description: CIDR prefix length; Required if no mask provided
+    type: int
   mask:
     description: Subnet netmask. Required if no cidr prefix length provided
+    type: str
   from_ip:
     description: First IP address of the host IP allocation pool
     required: false
+    type: str
   to_ip:
     description: Last IP address of the host IP allocation pool
     required: false
+    type: str
   boot_mode:
     description: Boot mode used by hosts in this subnet
     required: false
     default: DHCP
     choices: ["DHCP", "Static"]
+    type: str
   ipam:
     description: IPAM mode for this subnet
     required: false
     default: DHCP
     choices: ["DHCP","Internal DB"]
+    type: str
   dhcp_proxy:
     description: DHCP Smart proxy for this subnet
     required: false
+    type: str
   tftp_proxy:
     description: TFTP Smart proxy for this subnet
     required: false
+    type: str
   discovery_proxy:
     description:
       - Discovery Smart proxy for this subnet
       - This option is only available, if the discovery plugin is installed.
     required: false
+    type: str
   dns_proxy:
     description: DNS Smart proxy for this subnet
     required: false
+    type: str
   remote_execution_proxies:
     description:
       - Remote execution Smart proxies for this subnet
       - This option is only available, if the remote_execution plugin is installed.
     required: false
-    default: None
     type: list
   vlanid:
     description: VLAN ID
     required: false
+    type: int
   mtu:
     description: MTU
     required: false
+    type: int
   organizations:
     description: List of oganizations the subnet should be assigned to
     required: false
-    default: None
     type: list
   locations:
     description: List of locations the subnet should be assigned to
     required: false
-    default: None
     type: list
   parameters:
     description:
@@ -115,11 +137,12 @@ options:
     required: false
     type: list
     elements: dict
-    options:
+    suboptions:
       name:
         description:
           - Name of the parameter
         required: true
+        type: str
       value:
         description:
           - Value of the parameter
@@ -138,10 +161,12 @@ options:
           - 'hash'
           - 'yaml'
           - 'json'
+        type: str
   state:
     description: subnet presence
     default: present
     choices: ["present", "absent"]
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -175,13 +200,18 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-
-from netaddr import IPNetwork
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule, parameter_entity_spec
+import traceback
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule, parameter_entity_spec
+try:
+    import ipaddress
+    HAS_IPADDRESS = True
+except ImportError:
+    HAS_IPADDRESS = False
+    IPADDRESS_IMP_ERR = traceback.format_exc()
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             network_type=dict(choices=['IPv4', 'IPv6'], default='IPv4'),
@@ -210,6 +240,9 @@ def main():
         required_one_of=[['cidr', 'mask']],
     )
 
+    if not HAS_IPADDRESS:
+        module.fail_json(msg='The ipaddress Python module is required', exception=IPADDRESS_IMP_ERR)
+
     entity_dict = module.clean_params()
 
     module.connect()
@@ -217,10 +250,14 @@ def main():
     entity = module.find_resource_by_name('subnets', entity_dict['name'], failsafe=True)
 
     if not module.desired_absent:
+        if entity_dict['network_type'] == 'IPv4':
+            IPNetwork = ipaddress.IPv4Network
+        else:
+            IPNetwork = ipaddress.IPv6Network
         if 'mask' in entity_dict and 'cidr' not in entity_dict:
-            entity_dict['cidr'] = IPNetwork('%s/%s' % (entity_dict['network'], entity_dict['mask'])).prefixlen
+            entity_dict['cidr'] = IPNetwork(u'%s/%s' % (entity_dict['network'], entity_dict['mask'])).prefixlen
         elif 'mask' not in entity_dict and 'cidr' in entity_dict:
-            entity_dict['mask'] = str(IPNetwork('%s/%s' % (entity_dict['network'], entity_dict['cidr'])).netmask)
+            entity_dict['mask'] = str(IPNetwork(u'%s/%s' % (entity_dict['network'], entity_dict['cidr'])).netmask)
 
         if 'domains' in entity_dict:
             entity_dict['domains'] = module.find_resources('domains', entity_dict['domains'], thin=True)
@@ -251,5 +288,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#  vim: set sts=4 ts=8 sw=4 ft=python et noro norl cin si ai :

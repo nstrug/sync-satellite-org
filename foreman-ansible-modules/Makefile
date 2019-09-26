@@ -7,6 +7,8 @@ endif
 MODULE_PATH=plugins/modules/$(MODULE).py
 DEBUG_DATA_PATH=tests/debug_data/$(DATA).json
 DEBUG_OPTIONS=-m $(MODULE_PATH) -a @$(DEBUG_DATA_PATH) -D $(PDB_PATH)
+COLLECTION_TMP:=$(shell mktemp -du)
+COLLECTION_INSTALL_TMP:=$(shell mktemp -du)
 
 default: help
 help:
@@ -23,7 +25,7 @@ help:
 	@echo "  record_<test>  to (re-)record the server answers for a specific test"
 
 lint:
-	pycodestyle --ignore=E402,E722 --max-line-length=160 plugins/modules plugins/module_utils tests/
+	flake8 --ignore=E402,W503 --max-line-length=160 plugins/ tests/
 
 test:
 	pytest -v $(TEST)
@@ -38,8 +40,8 @@ record_%: FORCE
 clean_%: FORCE
 	ansible-playbook --tags teardown,cleanup -i tests/inventory/hosts 'tests/test_playbooks/$*.yml'
 
-sanity:
-	ansible-playbook tests/extras/sanity.yml
+sanity: dist-install
+	ansible-playbook $(CURDIR)/tests/extras/sanity.yml -e test_collection_path=$(COLLECTION_INSTALL_TMP)/ansible_collections/theforeman/foreman/
 
 debug:
 ifndef MODULE
@@ -61,7 +63,30 @@ tests/test_playbooks/vars/server.yml:
 	cp tests/test_playbooks/vars/server.yml.example tests/test_playbooks/vars/server.yml
 
 dist:
-	mazer build
+	mkdir -p $(COLLECTION_TMP)
+
+	# only copy selected files/folders from our git
+	git archive HEAD LICENSE README.md galaxy.yml plugins tests/sanity | tar -C $(COLLECTION_TMP) -xf -
+
+	# fix the imports to use the collection namespace
+	sed -i '/ansible.module_utils.foreman_helper/ s/ansible.module_utils/ansible_collections.theforeman.foreman.plugins.module_utils/g' $(COLLECTION_TMP)/plugins/modules/*.py
+	sed -i '/extends_documentation_fragment/ s/foreman/theforeman.foreman.foreman/g' $(COLLECTION_TMP)/plugins/modules/*.py
+
+	ansible-galaxy collection build $(COLLECTION_TMP)
+
+	rm -rf $(COLLECTION_TMP)
+
+dist-install: dist
+	mkdir -p $(COLLECTION_INSTALL_TMP)
+
+	ansible-galaxy collection install --collections-path $(COLLECTION_INSTALL_TMP) ./theforeman-foreman-*.tar.gz
+
+dist-test: dist-install
+	ANSIBLE_COLLECTIONS_PATHS=$(COLLECTION_INSTALL_TMP) ansible -m theforeman.foreman.foreman_organization -a "username=admin password=changeme server_url=https://foreman.example.test name=collectiontest" fixtures |grep -q "Failed to connect to Foreman server"
+	ANSIBLE_COLLECTIONS_PATHS=$(COLLECTION_INSTALL_TMP) ansible-doc theforeman.foreman.foreman_organization |grep -q "Manage Foreman Organization"
+
+dist-clean:
+	rm -rf $(COLLECTION_INSTALL_TMP)
 
 doc-setup:
 	pip install -r docs/requirements.txt

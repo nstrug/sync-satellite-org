@@ -1,2 +1,2 @@
-sphinx
+-r https://github.com/ansible/ansible/raw/devel/docs/docsite/requirements.txt
 sphinx-rtd-theme

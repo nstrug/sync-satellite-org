@@ -4,23 +4,23 @@ interactions:
     headers:
       Accept: [application/json;version=2]
     method: GET
-    uri: https://centos7-katello-3-12/api/status
+    uri: https://foreman.example.com/api/status
   response:
     body: {string: !!python/unicode '{"result":"ok","status":200,"version":"1.22.0","api_version":2}'}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-length: ['63']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
+      date: ['Thu, 15 Aug 2019 09:02:46 GMT']
       etag: [W/"674e9dbc2140c688b559566b581c5c09"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
-      set-cookie: [_session_id=47c73979cea4123903b66330128eb9f2; path=/; secure; HttpOnly;
+      set-cookie: [_session_id=81a0479ed57a42c210978f6585f9b356; path=/; secure; HttpOnly;
           SameSite=Lax]
       status: [200 OK]
       strict-transport-security: [max-age=631139040; includeSubdomains]
@@ -29,33 +29,34 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [27cb7dc7-602f-48fa-ba01-03d9c913c968]
-      x-runtime: ['0.029649']
+      x-request-id: [42ee49a8-2cf0-44e0-b0af-df34e1b6f8f0]
+      x-runtime: ['0.030705']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json;version=2]
-      Cookie: [_session_id=47c73979cea4123903b66330128eb9f2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
     method: GET
-    uri: https://centos7-katello-3-12/katello/api/organizations?per_page=4294967296&search=name%3D%22Test+Organization%22&thin=True
+    uri: https://foreman.example.com/katello/api/organizations?per_page=4294967296&search=name%3D%22Test+Organization%22&thin=True
   response:
-    body: {string: !!python/unicode "{\n  \"total\": 2,\n  \"subtotal\": 1,\n  \"page\":
-        1,\n  \"per_page\": 4294967296,\n  \"search\": \"name=\\\"Test Organization\\\"\",\n
-        \ \"sort\": {\n    \"by\": null,\n    \"order\": null\n  },\n  \"results\":
-        [{\"label\":\"Test_Organization\",\"created_at\":\"2019-08-06 19:20:35 UTC\",\"updated_at\":\"2019-08-06
-        19:20:35 UTC\",\"id\":5,\"name\":\"Test Organization\",\"title\":\"Test Organization\",\"description\":\"A
-        test organization\"}]\n}\n"}
+    body: {string: !!python/unicode "{\n  \"total\": 2,\n  \"subtotal\": 1,\n  \"\
+        page\": 1,\n  \"per_page\": 4294967296,\n  \"search\": \"name=\\\"Test Organization\\\
+        \"\",\n  \"sort\": {\n    \"by\": null,\n    \"order\": null\n  },\n  \"results\"\
+        : [{\"label\":\"Test_Organization\",\"created_at\":\"2019-08-12 09:44:14 UTC\"\
+        ,\"updated_at\":\"2019-08-12 09:44:14 UTC\",\"id\":11,\"name\":\"Test Organization\"\
+        ,\"title\":\"Test Organization\",\"description\":\"A test organization\"}]\n\
+        }\n"}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
-      etag: [W/"2719a2fa2659c047d7a041d9ac70c028"]
+      date: ['Thu, 15 Aug 2019 09:02:46 GMT']
+      etag: [W/"20beb3ba185331a8e3737f6d04f38ed4"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
@@ -68,32 +69,32 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [1353ec10-49e8-4ad5-9dc1-456513760db0]
-      x-runtime: ['0.016973']
+      x-request-id: [62ccd11e-3409-4f3b-8b65-528c34e3cb6c]
+      x-runtime: ['0.017556']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json;version=2]
-      Cookie: [_session_id=47c73979cea4123903b66330128eb9f2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
     method: GET
-    uri: https://centos7-katello-3-12/katello/api/organizations/5/environments?per_page=4294967296&search=name%3D%22Library%22&thin=True
+    uri: https://foreman.example.com/katello/api/organizations/11/environments?per_page=4294967296&search=name%3D%22Library%22&thin=True
   response:
-    body: {string: !!python/unicode '{"total":1,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Library\"","sort":{"by":"name","order":"asc"},"results":[{"library":true,"registry_name_pattern":null,"registry_unauthenticated_pull":false,"id":4,"name":"Library","label":"Library","description":null,"organization_id":5,"organization":{"name":"Test
-        Organization","label":"Test_Organization","id":5},"created_at":"2019-08-06
-        19:20:36 UTC","updated_at":"2019-08-06 19:20:36 UTC","prior":null,"successor":null,"counts":{"content_hosts":0,"content_views":0,"packages":0,"puppet_modules":0,"module_streams":0,"errata":{"security":null,"bugfix":0,"enhancement":0,"total":null},"yum_repositories":1,"docker_repositories":0,"ostree_repositories":0,"products":1},"permissions":{"create_lifecycle_environments":true,"view_lifecycle_environments":true,"edit_lifecycle_environments":true,"destroy_lifecycle_environments":false,"promote_or_remove_content_views_to_environments":true}}]}
+    body: {string: !!python/unicode '{"total":1,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Library\"","sort":{"by":"name","order":"asc"},"results":[{"library":true,"registry_name_pattern":null,"registry_unauthenticated_pull":false,"id":9,"name":"Library","label":"Library","description":null,"organization_id":11,"organization":{"name":"Test
+        Organization","label":"Test_Organization","id":11},"created_at":"2019-08-12
+        09:44:14 UTC","updated_at":"2019-08-12 09:44:14 UTC","prior":null,"successor":null,"counts":{"content_hosts":0,"content_views":0,"packages":0,"puppet_modules":0,"module_streams":0,"errata":{"security":null,"bugfix":0,"enhancement":0,"total":null},"yum_repositories":1,"docker_repositories":0,"ostree_repositories":0,"products":1},"permissions":{"create_lifecycle_environments":true,"view_lifecycle_environments":true,"edit_lifecycle_environments":true,"destroy_lifecycle_environments":false,"promote_or_remove_content_views_to_environments":true}}]}
 
-'}
+        '}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
-      etag: [W/"3b87f993c12a247079404b8de30c884f"]
+      date: ['Thu, 15 Aug 2019 09:02:46 GMT']
+      etag: [W/"81d84ac50c59bc7f3add9cd9e0a2cd6a"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
@@ -106,37 +107,37 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [933945a8-65b2-4173-bc9a-40a94f350c50]
-      x-runtime: ['0.044703']
+      x-request-id: [42742d36-ee4b-44ef-8c4f-c6d8dd74c058]
+      x-runtime: ['0.044237']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json;version=2]
-      Cookie: [_session_id=47c73979cea4123903b66330128eb9f2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
     method: GET
-    uri: https://centos7-katello-3-12/katello/api/organizations/5/content_views?per_page=4294967296&search=name%3D%22Default+Organization+View%22&thin=True
+    uri: https://foreman.example.com/katello/api/organizations/11/content_views?per_page=4294967296&search=name%3D%22Default+Organization+View%22&thin=True
   response:
     body: {string: !!python/unicode '{"total":1,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Default
-        Organization View\"","sort":{"by":"name","order":"asc"},"results":[{"composite":false,"component_ids":[],"default":true,"force_puppet_environment":false,"version_count":1,"latest_version":"1.0","auto_publish":false,"solve_dependencies":false,"repository_ids":[],"id":4,"name":"Default
-        Organization View","label":"5c1f766c-cd37-4d6d-8337-4420a134e7bd","description":null,"organization_id":5,"organization":{"name":"Test
-        Organization","label":"Test_Organization","id":5},"created_at":"2019-08-06
-        19:20:36 UTC","updated_at":"2019-08-06 19:20:36 UTC","environments":[{"id":4,"name":"Library","label":"Library","permissions":{"readable":true}}],"repositories":[],"puppet_modules":[],"versions":[{"id":4,"version":"1.0","published":"2019-08-06
-        19:20:36 UTC","environment_ids":[4]}],"components":[],"content_view_components":[],"activation_keys":[{"id":68,"name":"Test
-        Activation Key"},{"id":69,"name":"Test Activation Key Copy"}],"next_version":"1.0","last_published":"2019-08-06
-        19:20:36 UTC","permissions":{"view_content_views":true,"edit_content_views":true,"destroy_content_views":true,"publish_content_views":true,"promote_or_remove_content_views":true}}]}
+        Organization View\"","sort":{"by":"name","order":"asc"},"results":[{"composite":false,"component_ids":[],"default":true,"force_puppet_environment":false,"version_count":1,"latest_version":"1.0","auto_publish":false,"solve_dependencies":false,"repository_ids":[],"id":9,"name":"Default
+        Organization View","label":"bf71e730-b028-47c0-8536-d3f7ef168df6","description":null,"organization_id":11,"organization":{"name":"Test
+        Organization","label":"Test_Organization","id":11},"created_at":"2019-08-12
+        09:44:15 UTC","updated_at":"2019-08-12 09:44:15 UTC","environments":[{"id":9,"name":"Library","label":"Library","permissions":{"readable":true}}],"repositories":[],"puppet_modules":[],"versions":[{"id":9,"version":"1.0","published":"2019-08-12
+        09:44:15 UTC","environment_ids":[9]}],"components":[],"content_view_components":[],"activation_keys":[{"id":21,"name":"Test
+        Activation Key"}],"next_version":"1.0","last_published":"2019-08-12 09:44:15
+        UTC","permissions":{"view_content_views":true,"edit_content_views":true,"destroy_content_views":true,"publish_content_views":true,"promote_or_remove_content_views":true}}]}
 
-'}
+        '}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
-      etag: [W/"55bb5da8d2388e4c741cee65c1820069"]
+      date: ['Thu, 15 Aug 2019 09:02:46 GMT']
+      etag: [W/"dc2b95c58050ae8ce81674408f2981ed"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
@@ -149,36 +150,36 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [f3787da6-18c7-4795-ba0e-aa567ca6c2a4]
-      x-runtime: ['0.031834']
+      x-request-id: [ecae8ef0-1374-449c-a578-9de1f5e3dadd]
+      x-runtime: ['0.038598']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json;version=2]
-      Cookie: [_session_id=47c73979cea4123903b66330128eb9f2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
     method: GET
-    uri: https://centos7-katello-3-12/katello/api/organizations/5/activation_keys?per_page=4294967296&search=name%3D%22Test+Activation+Key%22&thin=False
+    uri: https://foreman.example.com/katello/api/organizations/11/activation_keys?per_page=4294967296&search=name%3D%22Test+Activation+Key%22&thin=False
   response:
-    body: {string: !!python/unicode '{"total":2,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Test
-        Activation Key\"","sort":{"by":"name","order":"asc"},"results":[{"id":68,"name":"Test
-        Activation Key","description":null,"unlimited_hosts":true,"auto_attach":false,"content_view_id":4,"environment_id":4,"usage_count":0,"user_id":4,"max_hosts":null,"release_version":null,"organization_id":5,"organization":{"name":"Test
-        Organization","label":"Test_Organization","id":5},"created_at":"2019-08-07
-        16:08:01 UTC","updated_at":"2019-08-07 16:08:05 UTC","content_view":{"id":4,"name":"Default
-        Organization View"},"environment":{"name":"Library","id":4},"products":[{"id":3,"name":"Test
-        Product"}],"host_collections":[{"id":1,"name":"TheAnswer"}],"permissions":{"view_activation_keys":true,"edit_activation_keys":true,"destroy_activation_keys":true}}]}
+    body: {string: !!python/unicode '{"total":1,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Test
+        Activation Key\"","sort":{"by":"name","order":"asc"},"results":[{"id":21,"name":"Test
+        Activation Key","description":null,"unlimited_hosts":true,"auto_attach":false,"content_view_id":9,"environment_id":9,"usage_count":0,"user_id":4,"max_hosts":null,"release_version":null,"organization_id":11,"organization":{"name":"Test
+        Organization","label":"Test_Organization","id":11},"created_at":"2019-08-15
+        09:02:44 UTC","updated_at":"2019-08-15 09:02:45 UTC","content_view":{"id":9,"name":"Default
+        Organization View"},"environment":{"name":"Library","id":9},"products":[{"id":193,"name":"Test
+        Product"}],"host_collections":[],"permissions":{"view_activation_keys":true,"edit_activation_keys":true,"destroy_activation_keys":true}}]}
 
-'}
+        '}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
-      etag: [W/"cd773b7ba9163a16d78dc23bd001aabb"]
+      date: ['Thu, 15 Aug 2019 09:02:46 GMT']
+      etag: [W/"71b0500d1778b3dcaff3efb57324eec9"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
@@ -191,35 +192,35 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [7d6b39ff-a689-43e3-97cd-3bee5f2d93c8]
-      x-runtime: ['0.031400']
+      x-request-id: [1a20e99b-6149-4bd9-bc00-caa110791309]
+      x-runtime: ['0.030701']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json;version=2]
-      Cookie: [_session_id=47c73979cea4123903b66330128eb9f2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
     method: GET
-    uri: https://centos7-katello-3-12/katello/api/activation_keys/68?organization_id=5
+    uri: https://foreman.example.com/katello/api/activation_keys/21?organization_id=11
   response:
-    body: {string: !!python/unicode '  {"service_level":null,"content_overrides":[{"content_label":"Test_Organization_Test_Product_Test_Repository","name":"enabled","value":"0"}],"id":68,"name":"Test
-        Activation Key","description":null,"unlimited_hosts":true,"auto_attach":false,"content_view_id":4,"environment_id":4,"usage_count":0,"user_id":4,"max_hosts":null,"release_version":null,"organization_id":5,"organization":{"name":"Test
-        Organization","label":"Test_Organization","id":5},"created_at":"2019-08-07
-        16:08:01 UTC","updated_at":"2019-08-07 16:08:05 UTC","content_view":{"id":4,"name":"Default
-        Organization View"},"environment":{"name":"Library","id":4},"products":[{"id":3,"name":"Test
-        Product"}],"host_collections":[{"id":1,"name":"TheAnswer"}],"permissions":{"view_activation_keys":true,"edit_activation_keys":true,"destroy_activation_keys":true}}
+    body: {string: !!python/unicode '  {"service_level":null,"content_overrides":[{"content_label":"Test_Organization_Test_Product_Test_Repository","name":"enabled","value":"0"}],"id":21,"name":"Test
+        Activation Key","description":null,"unlimited_hosts":true,"auto_attach":false,"content_view_id":9,"environment_id":9,"usage_count":0,"user_id":4,"max_hosts":null,"release_version":null,"organization_id":11,"organization":{"name":"Test
+        Organization","label":"Test_Organization","id":11},"created_at":"2019-08-15
+        09:02:44 UTC","updated_at":"2019-08-15 09:02:45 UTC","content_view":{"id":9,"name":"Default
+        Organization View"},"environment":{"name":"Library","id":9},"products":[{"id":193,"name":"Test
+        Product"}],"host_collections":[],"permissions":{"view_activation_keys":true,"edit_activation_keys":true,"destroy_activation_keys":true}}
 
-'}
+        '}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
-      etag: [W/"19cf927cbee9cf01cec83d9acfc4d461"]
+      date: ['Thu, 15 Aug 2019 09:02:46 GMT']
+      etag: [W/"2b4fae191ab0d5ffe4e18d83b80a860c"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
@@ -232,36 +233,34 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [6f7f7b03-14f0-4c0c-adf9-4b52187079b2]
-      x-runtime: ['0.057781']
+      x-request-id: [3e4bc166-7ebb-45a5-997f-90c6572ab014]
+      x-runtime: ['0.056641']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json;version=2]
-      Cookie: [_session_id=47c73979cea4123903b66330128eb9f2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
     method: GET
-    uri: https://centos7-katello-3-12/katello/api/organizations/5/activation_keys?per_page=4294967296&search=name%3D%22Test+Activation+Key+Copy%22&id=68&thin=False
+    uri: https://foreman.example.com/katello/api/organizations/11/subscriptions?per_page=4294967296&search=name%3D%22Test+Product%22&id=21&thin=True
   response:
-    body: {string: !!python/unicode '{"total":2,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Test
-        Activation Key Copy\"","sort":{"by":"name","order":"asc"},"results":[{"id":69,"name":"Test
-        Activation Key Copy","description":null,"unlimited_hosts":true,"auto_attach":false,"content_view_id":4,"environment_id":4,"usage_count":0,"user_id":4,"max_hosts":null,"release_version":null,"organization_id":5,"organization":{"name":"Test
-        Organization","label":"Test_Organization","id":5},"created_at":"2019-08-07
-        16:08:09 UTC","updated_at":"2019-08-07 16:08:10 UTC","content_view":{"id":4,"name":"Default
-        Organization View"},"environment":{"name":"Library","id":4},"products":[{"id":3,"name":"Test
-        Product"}],"host_collections":[{"id":1,"name":"TheAnswer"}],"permissions":{"view_activation_keys":true,"edit_activation_keys":true,"destroy_activation_keys":true}}]}
+    body: {string: !!python/unicode '{"organization":{},"total":1,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":"name=\"Test
+        Product\"","sort":{"by":"name","order":"asc"},"results":[{"id":92,"cp_id":"4028f9d96c94356f016c9483a6490052","subscription_id":21,"name":"Test
+        Product","start_date":"2019-08-15 09:02:31 UTC","end_date":"2049-08-07 09:02:31
+        UTC","available":-1,"quantity":-1,"consumed":0,"account_number":null,"contract_number":null,"support_level":null,"product_id":"745256956632","sockets":null,"cores":null,"ram":null,"instance_multiplier":1,"stacking_id":null,"multi_entitlement":false,"type":"NORMAL","product_name":"Test
+        Product","unmapped_guest":false,"virt_only":false,"virt_who":false,"upstream":false,"upstream_pool_id":null}]}
 
-'}
+        '}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
-      etag: [W/"2cee073eb75b40db4b9408ea1032126f"]
+      date: ['Thu, 15 Aug 2019 09:02:47 GMT']
+      etag: [W/"e872361c7d7e7789bdd0b0f2dde688b2"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
@@ -274,35 +273,33 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [635038cf-8d38-4c6a-ad48-c7942121ce01]
-      x-runtime: ['0.034449']
+      x-request-id: [d6205540-521b-4865-9a58-c5e950c01e68]
+      x-runtime: ['0.100927']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json;version=2]
-      Cookie: [_session_id=47c73979cea4123903b66330128eb9f2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
     method: GET
-    uri: https://centos7-katello-3-12/katello/api/activation_keys/69?organization_id=5
+    uri: https://foreman.example.com/katello/api/activation_keys/21/subscriptions?per_page=4294967296
   response:
-    body: {string: !!python/unicode '  {"service_level":null,"content_overrides":[{"content_label":"Test_Organization_Test_Product_Test_Repository","name":"enabled","value":"0"}],"id":69,"name":"Test
-        Activation Key Copy","description":null,"unlimited_hosts":true,"auto_attach":false,"content_view_id":4,"environment_id":4,"usage_count":0,"user_id":4,"max_hosts":null,"release_version":null,"organization_id":5,"organization":{"name":"Test
-        Organization","label":"Test_Organization","id":5},"created_at":"2019-08-07
-        16:08:09 UTC","updated_at":"2019-08-07 16:08:10 UTC","content_view":{"id":4,"name":"Default
-        Organization View"},"environment":{"name":"Library","id":4},"products":[{"id":3,"name":"Test
-        Product"}],"host_collections":[{"id":1,"name":"TheAnswer"}],"permissions":{"view_activation_keys":true,"edit_activation_keys":true,"destroy_activation_keys":true}}
+    body: {string: !!python/unicode '{"organization":{},"total":1,"subtotal":1,"page":1,"per_page":"4294967296","error":null,"search":null,"sort":{"by":"name","order":"asc"},"results":[{"quantity_attached":1,"id":92,"cp_id":"4028f9d96c94356f016c9483a6490052","subscription_id":21,"name":"Test
+        Product","start_date":"2019-08-15 09:02:31 UTC","end_date":"2049-08-07 09:02:31
+        UTC","available":-1,"quantity":-1,"consumed":0,"account_number":null,"contract_number":null,"support_level":null,"product_id":"745256956632","sockets":null,"cores":null,"ram":null,"instance_multiplier":1,"stacking_id":null,"multi_entitlement":false,"type":"NORMAL","product_name":"Test
+        Product","unmapped_guest":false,"virt_only":false,"virt_who":false,"upstream":false,"upstream_pool_id":null}]}
 
-'}
+        '}
     headers:
-      apipie-checksum: [5adea7a94ce02bd4ebd4e9df5046899d962d1188]
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
       cache-control: ['max-age=0, private, must-revalidate']
       content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
           ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
           ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
       content-type: [application/json; charset=utf-8]
-      date: ['Wed, 07 Aug 2019 16:08:11 GMT']
-      etag: [W/"7044707ffd7270b7c9efdcf61b497ffb"]
+      date: ['Thu, 15 Aug 2019 09:02:47 GMT']
+      etag: [W/"1334e657b2ab738711bb6a272e8d423c"]
       foreman_api_version: ['2']
       foreman_version: [1.22.0]
       server: [Apache]
@@ -315,8 +312,45 @@ interactions:
       x-frame-options: [sameorigin]
       x-permitted-cross-domain-policies: [none]
       x-powered-by: [Phusion Passenger 4.0.53]
-      x-request-id: [30b5b8f1-fea0-4c8a-b385-c9ed466e6557]
-      x-runtime: ['0.058688']
+      x-request-id: [e5b4661e-0ff6-45ac-959c-70be2566bc05]
+      x-runtime: ['0.070697']
+      x-xss-protection: [1; mode=block]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json;version=2]
+      Cookie: [_session_id=81a0479ed57a42c210978f6585f9b356]
+    method: GET
+    uri: https://foreman.example.com/katello/api/activation_keys/21/product_content
+  response:
+    body: {string: !!python/unicode '{"total":1,"subtotal":1,"page":null,"per_page":null,"error":null,"search":null,"sort":{"by":null,"order":null},"results":[{"enabled":true,"product":{"id":193,"name":"Test
+        Product"},"content":{"id":7122,"name":"Test Repository","label":"Test_Organization_Test_Product_Test_Repository","vendor":"Custom","content_type":"yum","content_url":"/custom/Test_Product/Test_Repository","gpg_url":null},"override":"0","overrides":[{"name":"enabled","value":false}],"enabled_content_override":false}]}
+
+        '}
+    headers:
+      apipie-checksum: [f287e71ef7536ad92a99a61830ffabc07a800b26]
+      cache-control: ['max-age=0, private, must-revalidate']
+      content-security-policy: ['default-src ''self''; child-src ''self''; connect-src
+          ''self'' ws: wss:; img-src ''self'' data: *.gravatar.com; script-src ''unsafe-eval''
+          ''unsafe-inline'' ''self''; style-src ''unsafe-inline'' ''self''']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 15 Aug 2019 09:02:47 GMT']
+      etag: [W/"ca5a12f5535b9a36aea7ecf11f79e540"]
+      foreman_api_version: ['2']
+      foreman_version: [1.22.0]
+      server: [Apache]
+      status: [200 OK]
+      strict-transport-security: [max-age=631139040; includeSubdomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+      x-download-options: [noopen]
+      x-frame-options: [sameorigin]
+      x-permitted-cross-domain-policies: [none]
+      x-powered-by: [Phusion Passenger 4.0.53]
+      x-request-id: [775c9776-9d90-4f9f-839c-a0d838340c0d]
+      x-runtime: ['0.036740']
       x-xss-protection: [1; mode=block]
     status: {code: 200, message: OK}
 version: 1
