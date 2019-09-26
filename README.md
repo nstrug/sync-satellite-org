@@ -54,7 +54,6 @@ The following parameters can be set:
 |foreman_organisation |Default_Organization |The organization on the source satellite to clone from |
 |foreman_username|admin|The username to use when connecting to the source satellite|
 |foreman_password|foobar|The password to use when connecting to the source satellite|
-|foreman_server_url|https://satellite.example.com|The URL of the source satellite|
 |foreman_verify_ssl|true|Whether to use strict SSL cert checking when connecting to the satellite|
 |output_dir|/tmp/sync-satellite-org|The directory where the execution playbook will bre created|
 
