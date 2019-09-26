@@ -4,8 +4,8 @@
 server.example.com
 
 [satellite:vars]
-env:foreman_organization=your_organization
-env:foreman_server_url=server.example.com
-env:foreman_username=your_username
-env:foreman_password=your_password
-env:foreman_verify_ssl=true
+foreman_organization=source_organisation
+foreman_server_url=https://server.example.com/
+foreman_username=source_satellite_username
+foreman_password=source_satellite_password
+foreman_verify_ssl=true
