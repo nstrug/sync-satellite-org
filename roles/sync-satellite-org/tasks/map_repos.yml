@@ -5,7 +5,7 @@
   set_fact:
     repo: "{{ (repositories|json_query(\"[?id==`\" + item|string + \"`].name\"))[0]|default(\"\") }}"
     product: "{{ (repositories|json_query(\"[?id==`\" + item|string + \"`].product\"))[0]|default(\"\") }}"
-    cv_lookup: "{{ cv_lookup + [ {\"Name\": repo, \"Product\": product} ] }}"
+    cv_lookup: "{{ (cv_lookup)|list + ([ {\"Name\": repo, \"Product\": product} ])|list }}"
   loop: "{{ cv.repository_ids }}"
 
 
