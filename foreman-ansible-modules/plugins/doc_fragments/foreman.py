@@ -16,21 +16,29 @@
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 class ModuleDocFragment(object):
 
     # Foreman documentation fragment
     DOCUMENTATION = '''
+requirements:
+  - apypie
 options:
   server_url:
     description: URL of the Foreman server
     required: true
+    type: str
   username:
     description: Username accessing the Foreman server
     required: true
+    type: str
   password:
     description: Password of the user accessing the Foreman server
     required: true
+    type: str
   validate_certs:
     aliases: [ verify_ssl ]
     description: Whether or not to verify the TLS certificates of the Foreman server

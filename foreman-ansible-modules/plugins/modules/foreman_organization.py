@@ -18,6 +18,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: foreman_organization
@@ -27,17 +35,17 @@ description:
 author:
     - "Eric D Helms (@ehelms)"
     - "Matthias M Dellweg (@mdellweg) ATIX AG"
-requirements:
-    - "apypie"
 options:
   name:
     description:
       - Name of the Foreman organization
     required: true
+    type: str
   description:
     description:
       - Description of the Foreman organization
     required: false
+    type: str
   state:
     description:
       - State of the Organization
@@ -45,9 +53,11 @@ options:
     choices:
       - present
       - absent
+    type: str
   label:
     description:
       - Label of the Foreman organization
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -64,11 +74,11 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             description=dict(),

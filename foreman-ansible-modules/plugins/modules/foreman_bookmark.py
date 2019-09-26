@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
-
 
 DOCUMENTATION = '''
 ---
@@ -31,18 +34,17 @@ description:
 author:
   - "Bernhard Hopfenmueller (@Fobhep) ATIX AG"
   - "Christoffer Reijer (@ephracis) Basalt AB"
-requirements:
-  - "ansible >= 2.3"
-  - "apypie"
 options:
   name:
     description:
       - Name of the bookmark
     required: true
+    type: str
   controller:
     description:
       - Controller for the bookmark
     required: true
+    type: str
   public:
     description:
       - Make bookmark available for all users
@@ -52,14 +54,17 @@ options:
   query:
     description:
       - Query of the bookmark
+    type: str
   state:
     description:
       - State of the bookmark
+      - C(present_with_defaults) will ensure the entity exists, but won't update existing ones
     default: present
     choices:
       - present
       - present_with_defaults
       - absent
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -96,15 +101,15 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             controller=dict(required=True),
-            public=dict(defaut='true', type='bool'),
+            public=dict(default='true', type='bool'),
             query=dict(),
         ),
         argument_spec=dict(
@@ -121,7 +126,7 @@ def main():
 
     module.connect()
 
-    search = 'name="{}",controller="{}"'.format(entity_dict['name'], entity_dict['controller'])
+    search = 'name="{0}",controller="{1}"'.format(entity_dict['name'], entity_dict['controller'])
     entity = module.find_resource('bookmarks', search, failsafe=True)
 
     changed = module.ensure_entity_state('bookmarks', entity_dict, entity)

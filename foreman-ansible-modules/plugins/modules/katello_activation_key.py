@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: katello_activation_key
@@ -24,27 +32,35 @@ short_description: Create and Manage Katello activation keys
 description:
   - Create and Manage Katello activation keys
 author: "Andrew Kofink (@akofink)"
-requirements:
-  - apypie
 options:
   name:
     description:
       - Name of the activation key
     required: true
+    type: str
   organization:
     description:
       - Organization name that the activation key is in
     required: true
+    type: str
   lifecycle_environment:
     description:
       - Name of the lifecycle environment
+    type: str
   content_view:
     description:
       - Name of the content view
+    type: str
   subscriptions:
     description:
       - List of subscriptions that include name
     type: list
+    suboptions:
+      name:
+        description:
+          - Name of the Subscription to be added
+        type: str
+        required: true
   host_collections:
     description:
       - List of host collections to add to activation key
@@ -53,22 +69,52 @@ options:
     description:
       - List of content overrides that include label and override state ('enabled', 'disabled' or 'default')
     type: list
+    suboptions:
+      label:
+        description:
+          - Label of the content override
+        type: str
+        required: true
+      override:
+        description:
+          - Override value
+        choices:
+          - enabled
+          - disabled
+        type: str
+        required: true
   auto_attach:
     description:
       - Set Auto-Attach on or off
     type: bool
+  release_version:
+    description:
+      - Set the content release version
+    type: str
+  service_level:
+    description:
+      - Set the service level
+    choices:
+      - Self-Support
+      - Standard
+      - Premium
+    type: str
   state:
     description:
-      - State of the Activation Key. If "copied" the key will be copied to a new one with "new_name" as the name and all other fields left untouched.
+      - State of the Activation Key
+      - If C(copied) the key will be copied to a new one with I(new_name) as the name and all other fields left untouched
+      - C(present_with_defaults) will ensure the entity exists, but won't update existing ones
     default: present
     choices:
       - present
       - present_with_defaults
       - absent
       - copied
+    type: str
   new_name:
     description:
       - Name of the new activation key when state == copied
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -91,11 +137,13 @@ EXAMPLES = '''
         - label: rhel-7-server-optional-rpms
           override: enabled
     auto_attach: False
+    release_version: 7Server
+    service_level: Standard
 '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule, _entity_spec_helper
+from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
 
 
 def override_to_boolnone(override):
@@ -114,7 +162,7 @@ def override_to_boolnone(override):
 
 
 def main():
-    module = KatelloEntityApypieAnsibleModule(
+    module = KatelloEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             new_name=dict(),
@@ -122,6 +170,8 @@ def main():
             content_view=dict(type='entity', flat_name='content_view_id'),
             host_collections=dict(type='entity_list', flat_name='host_collection_ids'),
             auto_attach=dict(type='bool'),
+            release_version=dict(),
+            service_level=dict(choices=['Self-Support', 'Standard', 'Premium']),
         ),
         argument_spec=dict(
             subscriptions=dict(type='list', elements='dict', options=dict(
@@ -129,7 +179,7 @@ def main():
             )),
             content_overrides=dict(type='list', elements='dict', options=dict(
                 label=dict(required=True),
-                override=dict(choises=['enabled', 'disabled']),
+                override=dict(required=True, choices=['enabled', 'disabled']),
             )),
             state=dict(default='present', choices=['present', 'present_with_defaults', 'absent', 'copied']),
         ),
@@ -157,7 +207,7 @@ def main():
     if module.state == 'copied':
         new_entity = module.find_resource_by_name('activation_keys', name=entity_dict['new_name'], params=scope, failsafe=True)
         if new_entity is not None:
-            module.warn("Activation Key '{}' already exists.".format(entity_dict['new_name']))
+            module.warn("Activation Key '{0}' already exists.".format(entity_dict['new_name']))
             module.exit_json(changed=False)
 
     subscriptions = entity_dict.pop('subscriptions', None)
@@ -169,6 +219,11 @@ def main():
     # copied keys inherit the subscriptions of the origin, so one would not have to specify them again
     # deleted keys don't need subscriptions anymore either
     if module.state == 'present' or (module.state == 'present_with_defaults' and changed):
+        # the auto_attach, release_version and service_level parameters can only be set on an existing AK with an update,
+        # not during create, so let's force an update. see https://projects.theforeman.org/issues/27632 for details
+        if any(key in entity_dict for key in ['auto_attach', 'release_version', 'service_level']) and changed:
+            _activation_key_changed, activation_key = module.ensure_entity('activation_keys', entity_dict, activation_key, params=scope)
+
         ak_scope = {'activation_key_id': activation_key['id']}
         if subscriptions is not None:
             subscription_names = [subscription['name'] for subscription in subscriptions]
@@ -197,7 +252,7 @@ def main():
                 changed = True
 
         if content_overrides is not None:
-            _, product_content = module.resource_action('activation_keys', 'product_content', params={'id': activation_key['id']})
+            _product_content_changed, product_content = module.resource_action('activation_keys', 'product_content', params={'id': activation_key['id']})
             current_content_overrides = {
                 product['content']['label']: product['enabled_content_override']
                 for product in product_content['results']

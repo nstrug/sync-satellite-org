@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: katello_content_credential
@@ -24,17 +32,17 @@ short_description: Create and Manage Katello content credentials
 description:
   - Create and Manage Katello content credentials
 author: "Baptiste Agasse (@bagasse)"
-requirements:
-  - apypie
 options:
   name:
     description:
       - Name of the content credential
     required: true
+    type: str
   organization:
     description:
       - Organization name that the content credential is in
     required: true
+    type: str
   content_type:
     description:
     - Type of credential
@@ -42,10 +50,12 @@ options:
     - gpg_key
     - cert
     required: true
+    type: str
   content:
     description:
     - Content of the content credential
     required: true
+    type: str
   state:
     description:
       - State of the content credential.
@@ -53,6 +63,7 @@ options:
     choices:
       - present
       - absent
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -70,11 +81,11 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
 
 
 def main():
-    module = KatelloEntityApypieAnsibleModule(
+    module = KatelloEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             content_type=dict(required=True, choices=['gpg_key', 'cert']),

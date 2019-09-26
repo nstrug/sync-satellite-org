@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 # (c) Matthias Dellweg (ATIX AG) 2017
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
 import json
 import re
 import time
 import traceback
-import yaml
+
+from functools import wraps
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -16,45 +21,18 @@ except ImportError:
     HAS_APYPIE = False
     APYPIE_IMP_ERR = traceback.format_exc()
 
+try:
+    import yaml
+    HAS_PYYAML = True
+except ImportError:
+    HAS_PYYAML = False
+    PYYAML_IMP_ERR = traceback.format_exc()
 
 parameter_entity_spec = dict(
     name=dict(required=True),
     value=dict(type='raw', required=True),
     parameter_type=dict(default='string', choices=['string', 'boolean', 'integer', 'real', 'array', 'hash', 'yaml', 'json']),
 )
-
-
-class ForemanBaseAnsibleModule(AnsibleModule):
-
-    def __init__(self, argument_spec, **kwargs):
-        args = dict(
-            server_url=dict(required=True),
-            username=dict(required=True),
-            password=dict(required=True, no_log=True),
-            validate_certs=dict(type='bool', default=True, aliases=['verify_ssl']),
-        )
-        args.update(argument_spec)
-        supports_check_mode = kwargs.pop('supports_check_mode', True)
-        super(ForemanBaseAnsibleModule, self).__init__(argument_spec=args, supports_check_mode=supports_check_mode, **kwargs)
-
-        self._params = self.params.copy()
-
-        self.check_requirements()
-
-        self._foremanapi_server_url = self._params.pop('server_url')
-        self._foremanapi_username = self._params.pop('username')
-        self._foremanapi_password = self._params.pop('password')
-        self._foremanapi_validate_certs = self._params.pop('validate_certs')
-
-    def parse_params(self):
-        self.warn("Use of deprecated method parse_params")
-        return {k: v for (k, v) in self._params.items() if v is not None}
-
-    def clean_params(self):
-        return {k: v for (k, v) in self._params.items() if v is not None}
-
-    def get_server_params(self):
-        return (self._foremanapi_server_url, self._foremanapi_username, self._foremanapi_password, self._foremanapi_validate_certs)
 
 
 class KatelloMixin(object):
@@ -68,10 +46,25 @@ class KatelloMixin(object):
 
     def connect(self, ping=True):
         super(KatelloMixin, self).connect(ping)
+        self._patch_content_uploads_update_api()
         self._patch_organization_update_api()
         self._patch_subscription_index_api()
-        self._patch_subscription_upload_api()
         self._patch_sync_plan_api()
+
+    def _patch_content_uploads_update_api(self):
+        """This is a workaround for the broken content_uploads update apidoc in katello.
+            see https://projects.theforeman.org/issues/27590
+        """
+
+        _content_upload_methods = self.foremanapi.apidoc['docs']['resources']['content_uploads']['methods']
+
+        _content_upload_update = next(x for x in _content_upload_methods if x['name'] == 'update')
+        _content_upload_update_params_id = next(x for x in _content_upload_update['params'] if x['name'] == 'id')
+        _content_upload_update_params_id['expected_type'] = 'string'
+
+        _content_upload_destroy = next(x for x in _content_upload_methods if x['name'] == 'destroy')
+        _content_upload_destroy_params_id = next(x for x in _content_upload_destroy['params'] if x['name'] == 'id')
+        _content_upload_destroy_params_id['expected_type'] = 'string'
 
     def _patch_organization_update_api(self):
         """This is a workaround for the broken organization update apidoc in katello.
@@ -94,17 +87,6 @@ class KatelloMixin(object):
         _subscription_index = next(x for x in _subscription_methods if x['name'] == 'index')
         _subscription_index_params_organization_id = next(x for x in _subscription_index['params'] if x['name'] == 'organization_id')
         _subscription_index_params_organization_id['required'] = False
-
-    def _patch_subscription_upload_api(self):
-        """This is a workaround for the broken subscription upload apidoc in katello.
-            see https://projects.theforeman.org/issues/27527
-        """
-
-        _subscription_methods = self.foremanapi.apidoc['docs']['resources']['subscriptions']['methods']
-
-        _subscription_upload = next(x for x in _subscription_methods if x['name'] == 'upload')
-        _subscription_upload_params_content = next(x for x in _subscription_upload['params'] if x['name'] == 'content')
-        _subscription_upload_params_content['expected_type'] = 'any_type'
 
     def _patch_sync_plan_api(self):
         """This is a workaround for the broken sync_plan apidoc in katello.
@@ -138,6 +120,7 @@ class KatelloMixin(object):
 
 def _exception2fail_json(msg='Generic failure: %s'):
     def decor(f):
+        @wraps(f)
         def inner(self, *args, **kwargs):
             try:
                 return f(self, *args, **kwargs)
@@ -147,13 +130,43 @@ def _exception2fail_json(msg='Generic failure: %s'):
     return decor
 
 
-class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
+class ForemanAnsibleModule(AnsibleModule):
 
-    def __init__(self, *args, **kwargs):
-        super(ForemanApypieAnsibleModule, self).__init__(*args, **kwargs)
+    def __init__(self, argument_spec, **kwargs):
+        args = dict(
+            server_url=dict(required=True),
+            username=dict(required=True),
+            password=dict(required=True, no_log=True),
+            validate_certs=dict(type='bool', default=True, aliases=['verify_ssl']),
+        )
+        args.update(argument_spec)
+        supports_check_mode = kwargs.pop('supports_check_mode', True)
+        self._aliases = {alias for arg in args.values() for alias in arg.get('aliases', [])}
+        super(ForemanAnsibleModule, self).__init__(argument_spec=args, supports_check_mode=supports_check_mode, **kwargs)
+
+        self._params = self.params.copy()
+
+        self.check_requirements()
+
+        self._foremanapi_server_url = self._params.pop('server_url')
+        self._foremanapi_username = self._params.pop('username')
+        self._foremanapi_password = self._params.pop('password')
+        self._foremanapi_validate_certs = self._params.pop('validate_certs')
+        if 'verify_ssl' in self._params:
+            self.warn("Please use 'validate_certs' instead of deprecated 'verify_ssl'.")
+
+        self.task_timeout = 60
+        self.task_poll = 4
+
         self._thin_default = False
         self.state = 'undefined'
         self.entity_spec = {}
+
+        self._before = {}
+        self._after = {}
+
+    def clean_params(self):
+        return {k: v for (k, v) in self._params.items() if v is not None and k not in self._aliases}
 
     def _patch_location_api(self):
         """This is a workaround for the broken taxonomies apidoc in foreman.
@@ -183,6 +196,38 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         _location_update_params_location = next(x for x in _location_update['params'] if x['name'] == 'location')
         _location_update_params_location['params'].append(_location_organizations_parameter)
 
+    def _patch_subnet_rex_api(self):
+        """This is a workaround for the broken subnet apidoc in foreman remote execution.
+            see https://projects.theforeman.org/issues/19086
+        """
+
+        if 'remote_execution_features' not in self.foremanapi.apidoc['docs']['resources']:
+            # the system has no foreman_remote_execution installed, no need to patch
+            return
+
+        _subnet_rex_proxies_parameter = {
+            u'validations': [],
+            u'name': u'remote_execution_proxy_ids',
+            u'show': True,
+            u'description': u'\n<p>Remote Execution Proxy IDs</p>\n',
+            u'required': False,
+            u'allow_nil': True,
+            u'allow_blank': False,
+            u'full_name': u'subnet[remote_execution_proxy_ids]',
+            u'expected_type': u'array',
+            u'metadata': None,
+            u'validator': u'',
+        }
+        _subnet_methods = self.foremanapi.apidoc['docs']['resources']['subnets']['methods']
+
+        _subnet_create = next(x for x in _subnet_methods if x['name'] == 'create')
+        _subnet_create_params_subnet = next(x for x in _subnet_create['params'] if x['name'] == 'subnet')
+        _subnet_create_params_subnet['params'].append(_subnet_rex_proxies_parameter)
+
+        _subnet_update = next(x for x in _subnet_methods if x['name'] == 'update')
+        _subnet_update_params_subnet = next(x for x in _subnet_update['params'] if x['name'] == 'subnet')
+        _subnet_update_params_subnet['params'].append(_subnet_rex_proxies_parameter)
+
     def check_requirements(self):
         if not HAS_APYPIE:
             self.fail_json(msg='The apypie Python module is required', exception=APYPIE_IMP_ERR)
@@ -198,6 +243,7 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         )
 
         self._patch_location_api()
+        self._patch_subnet_rex_api()
 
         if ping:
             self.ping()
@@ -249,15 +295,17 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
                 result = {'id': result['id']}
             else:
                 result = self.show_resource(resource, result['id'], params=params)
+        if self._before == {}:
+            self._before = result
         return result
 
     def find_resource_by_name(self, resource, name, **kwargs):
-        search = 'name="{}"'.format(name)
+        search = 'name="{0}"'.format(name)
         kwargs['name'] = name
         return self.find_resource(resource, search, **kwargs)
 
     def find_resource_by_title(self, resource, title, **kwargs):
-        search = 'title="{}"'.format(title)
+        search = 'title="{0}"'.format(title)
         return self.find_resource(resource, search, **kwargs)
 
     def find_resources(self, resource, search_list, **kwargs):
@@ -272,7 +320,7 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
     def find_operatingsystem(self, name, params=None, failsafe=False, thin=None):
         result = self.find_resource_by_title('operatingsystems', name, params=params, failsafe=True, thin=thin)
         if not result:
-            search = 'title~"{}"'.format(name)
+            search = 'title~"{0}"'.format(name)
             result = self.find_resource('operatingsystems', search, params=params, failsafe=failsafe, thin=thin)
         return result
 
@@ -280,11 +328,11 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         return [self.find_operatingsystem(name, **kwargs) for name in names]
 
     def ensure_entity_state(self, *args, **kwargs):
-        changed, _ = self.ensure_entity(*args, **kwargs)
+        changed, _entity = self.ensure_entity(*args, **kwargs)
         return changed
 
     @_exception2fail_json('Failed to ensure entity state: %s')
-    def ensure_entity(self, resource, desired_entity, current_entity, params=None, state=None, entity_spec=None):
+    def ensure_entity(self, resource, desired_entity, current_entity, params=None, state=None, entity_spec=None, synchronous=True):
         """Ensure that a given entity has a certain state
 
             Parameters:
@@ -302,33 +350,40 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         if entity_spec is None:
             entity_spec = self.entity_spec
         else:
-            entity_spec, _ = _entity_spec_helper(entity_spec)
+            entity_spec, _dummy = _entity_spec_helper(entity_spec)
 
         changed = False
         updated_entity = None
 
         if state == 'present_with_defaults':
             if current_entity is None:
-                changed, updated_entity = self._create_entity(resource, desired_entity, params, entity_spec)
+                changed, updated_entity = self._create_entity(resource, desired_entity, params, entity_spec, synchronous)
         elif state == 'present':
             if current_entity is None:
-                changed, updated_entity = self._create_entity(resource, desired_entity, params, entity_spec)
+                changed, updated_entity = self._create_entity(resource, desired_entity, params, entity_spec, synchronous)
             else:
-                changed, updated_entity = self._update_entity(resource, desired_entity, current_entity, params, entity_spec)
+                changed, updated_entity = self._update_entity(resource, desired_entity, current_entity, params, entity_spec, synchronous)
         elif state == 'copied':
             if current_entity is not None:
-                changed, updated_entity = self._copy_entity(resource, desired_entity, current_entity, params)
+                changed, updated_entity = self._copy_entity(resource, desired_entity, current_entity, params, synchronous)
         elif state == 'reverted':
             if current_entity is not None:
-                changed, updated_entity = self._revert_entity(resource, current_entity, params)
+                changed, updated_entity = self._revert_entity(resource, current_entity, params, synchronous)
         elif state == 'absent':
             if current_entity is not None:
-                changed, updated_entity = self._delete_entity(resource, current_entity, params)
+                changed, updated_entity = self._delete_entity(resource, current_entity, params, synchronous)
         else:
-            self.fail_json(msg='Not a valid state: {}'.format(state))
+            self.fail_json(msg='Not a valid state: {0}'.format(state))
+
+        if self._after == {}:
+            self._after = updated_entity
+        else:
+            # ensure_entity was called multiple times, we can't be sure which entity is the real one
+            self._after = {'invalid': True}
+
         return changed, updated_entity
 
-    def _create_entity(self, resource, desired_entity, params, entity_spec):
+    def _create_entity(self, resource, desired_entity, params, entity_spec, synchronous):
         """Create entity with given properties
 
             Parameters:
@@ -343,13 +398,13 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         if not self.check_mode:
             if params:
                 payload.update(params)
-            return self.resource_action(resource, 'create', payload)
+            return self.resource_action(resource, 'create', payload, synchronous=synchronous)
         else:
             fake_entity = desired_entity.copy()
             fake_entity['id'] = -1
             return True, fake_entity
 
-    def _update_entity(self, resource, desired_entity, current_entity, params, entity_spec):
+    def _update_entity(self, resource, desired_entity, current_entity, params, entity_spec, synchronous):
         """Update a given entity with given properties if any diverge
 
             Parameters:
@@ -372,7 +427,7 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
             if not self.check_mode:
                 if params:
                     payload.update(params)
-                return self.resource_action(resource, 'update', payload)
+                return self.resource_action(resource, 'update', payload, synchronous=synchronous)
             else:
                 # In check_mode we emulate the server updating the entity
                 fake_entity = current_entity.copy()
@@ -382,7 +437,7 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
             # Nothing needs changing
             return False, current_entity
 
-    def _copy_entity(self, resource, desired_entity, current_entity, params):
+    def _copy_entity(self, resource, desired_entity, current_entity, params, synchronous):
         """Copy a given entity
 
             Parameters:
@@ -398,9 +453,9 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         }
         if params:
             payload.update(params)
-        return self.resource_action(resource, 'copy', payload)
+        return self.resource_action(resource, 'copy', payload, synchronous=synchronous)
 
-    def _revert_entity(self, resource, current_entity, params):
+    def _revert_entity(self, resource, current_entity, params, synchronous):
         """Revert a given entity
 
             Parameters:
@@ -413,9 +468,9 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         payload = {'id': current_entity['id']}
         if params:
             payload.update(params)
-        return self.resource_action(resource, 'revert', payload)
+        return self.resource_action(resource, 'revert', payload, synchronous=synchronous)
 
-    def _delete_entity(self, resource, current_entity, params):
+    def _delete_entity(self, resource, current_entity, params, synchronous):
         """Delete a given entity
 
             Parameters:
@@ -428,35 +483,44 @@ class ForemanApypieAnsibleModule(ForemanBaseAnsibleModule):
         payload = {'id': current_entity['id']}
         if params:
             payload.update(params)
-        self.resource_action(resource, 'destroy', payload)
-        return True, None
+        changed, entity = self.resource_action(resource, 'destroy', payload, synchronous=synchronous)
 
-    def resource_action(self, resource, action, params, options=None, files=None):
+        # this is a workaround for https://projects.theforeman.org/issues/26937
+        if entity and 'error' in entity and 'message' in entity['error']:
+            self.fail_json(msg=entity['error']['message'])
+
+        return changed, None
+
+    def resource_action(self, resource, action, params, options=None, data=None, files=None, synchronous=True):
         resource_payload = self.foremanapi.resource(resource).action(action).prepare_params(params)
         if options is None:
             options = {}
         try:
             result = None
             if not self.check_mode:
-                result = self.foremanapi.resource(resource).call(action, resource_payload, options=options, files=files)
+                result = self.foremanapi.resource(resource).call(action, resource_payload, options=options, data=data, files=files)
+                is_foreman_task = isinstance(result, dict) and 'action' in result and 'state' in result and 'pending' in result
+                if synchronous and is_foreman_task:
+                    result = self.wait_for_task(result)
         except Exception as e:
-            self.fail_json(msg='Error while performing {} on {}: {}'.format(
+            self.fail_json(msg='Error while performing {0} on {1}: {2}'.format(
                 action, resource, str(e)))
         return True, result
 
-    def wait_for_task(self, task, duration=60, poll=4):
+    def wait_for_task(self, task):
+        duration = self.task_timeout
         while task['state'] not in ['paused', 'stopped']:
-            duration -= poll
+            duration -= self.task_poll
             if duration <= 0:
-                self.fail_json(msg="Timout waiting for Task {}".format(task['id']))
-            time.sleep(poll)
+                self.fail_json(msg="Timout waiting for Task {0}".format(task['id']))
+            time.sleep(self.task_poll)
 
-            _, task = self.resource_action('foreman_tasks', 'show', {'id': task['id']})
+            _task_changed, task = self.resource_action('foreman_tasks', 'show', {'id': task['id']})
 
         return task
 
 
-class ForemanEntityApypieAnsibleModule(ForemanApypieAnsibleModule):
+class ForemanEntityAnsibleModule(ForemanAnsibleModule):
 
     def __init__(self, argument_spec=None, **kwargs):
         entity_spec, gen_args = _entity_spec_helper(kwargs.pop('entity_spec', {}))
@@ -466,15 +530,12 @@ class ForemanEntityApypieAnsibleModule(ForemanApypieAnsibleModule):
         args.update(gen_args)
         if argument_spec is not None:
             args.update(argument_spec)
-        super(ForemanEntityApypieAnsibleModule, self).__init__(argument_spec=args, **kwargs)
+        super(ForemanEntityAnsibleModule, self).__init__(argument_spec=args, **kwargs)
 
         self.entity_spec = entity_spec
         self.state = self._params.pop('state')
         self.desired_absent = self.state == 'absent'
         self._thin_default = self.desired_absent
-
-    def parse_params(self):
-        return (super(ForemanEntityApypieAnsibleModule, self).parse_params(), self.state)
 
     def ensure_scoped_parameters(self, scope, entity, parameters):
         changed = False
@@ -501,8 +562,21 @@ class ForemanEntityApypieAnsibleModule(ForemanApypieAnsibleModule):
                         'parameters', None, current_parameter, state="absent", entity_spec=parameter_entity_spec, params=scope)
         return changed
 
+    def exit_json(self, **kwargs):
+        if self._after is None or 'invalid' not in self._after:
+            if 'diff' not in kwargs:
+                kwargs['diff'] = {'before': _flatten_entity(self._before, self.entity_spec),
+                                  'after': _flatten_entity(self._after, self.entity_spec)}
+            if 'entity' not in kwargs:
+                kwargs['entity'] = self._after
+        super(ForemanEntityAnsibleModule, self).exit_json(**kwargs)
 
-class KatelloEntityApypieAnsibleModule(KatelloMixin, ForemanEntityApypieAnsibleModule):
+
+class KatelloAnsibleModule(KatelloMixin, ForemanAnsibleModule):
+    pass
+
+
+class KatelloEntityAnsibleModule(KatelloMixin, ForemanEntityAnsibleModule):
     pass
 
 
@@ -528,7 +602,7 @@ def _entity_spec_helper(spec):
         elif argument_value.get('type') == 'nested_list':
             argument_value['type'] = 'list'
             argument_value['elements'] = 'dict'
-            _, argument_value['options'] = _entity_spec_helper(argument_value.pop('entity_spec'))
+            _dummy, argument_value['options'] = _entity_spec_helper(argument_value.pop('entity_spec'))
             entity_value = None
         if entity_value is not None:
             entity_spec[key] = entity_value
@@ -541,6 +615,8 @@ def _entity_spec_helper(spec):
 def _flatten_entity(entity, entity_spec):
     """Flatten entity according to spec"""
     result = {}
+    if entity is None:
+        entity = {}
     for key, value in entity.items():
         if key in entity_spec and value is not None:
             spec = entity_spec[key]
@@ -569,6 +645,9 @@ def parameter_value_to_str(value, parameter_type):
 
 # Helper for templates
 def parse_template(template_content, module):
+    if not HAS_PYYAML:
+        module.fail_json(msg='The PyYAML Python module is required', exception=PYYAML_IMP_ERR)
+
     try:
         template_dict = {}
         data = re.search(

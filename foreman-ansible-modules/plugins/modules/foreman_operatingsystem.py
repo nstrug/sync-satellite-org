@@ -18,10 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
-
 
 DOCUMENTATION = '''
 ---
@@ -32,32 +35,36 @@ description:
 author:
   - "Matthias M Dellweg (@mdellweg) ATIX AG"
   - "Bernhard Hopfenmüller (@Fobhep) ATIX AG"
-requirements:
-  - apypie
 options:
   name:
     description:
       - Name of the Operating System
     required: false
+    type: str
   release_name:
     description:
       - Release name of the operating system (recommended for debian)
+    type: str
   description:
     description:
       - Description of the Operating System
     required: false
+    type: str
   family:
     description:
       - distribution family of the Operating System
     required: false
+    type: str
   major:
     description:
       - major version of the Operating System
     required: false
+    type: str
   minor:
     description:
       - minor version of the Operating System
     required: false
+    type: str
   architectures:
     description:
       - architectures, the operating system can be installed on
@@ -86,17 +93,19 @@ options:
       - MD5
       - SHA256
       - SHA512
+    type: str
   parameters:
     description:
       - Operating System specific host parameters
     required: false
     type: list
     elements: dict
-    options:
+    suboptions:
       name:
         description:
           - Name of the parameter
         required: true
+        type: str
       value:
         description:
           - Value of the parameter
@@ -115,14 +124,17 @@ options:
           - 'hash'
           - 'yaml'
           - 'json'
+        type: str
   state:
     description:
       - State of the Operating System
+      - C(present_with_defaults) will ensure the entity exists, but won't update existing ones
     default: present
     choices:
       - present
       - present_with_defaults
       - absent
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -166,11 +178,11 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule, parameter_entity_spec
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule, parameter_entity_spec
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(),
             release_name=dict(),
@@ -207,19 +219,19 @@ def main():
     entity = None
     # If we have a description, search for it
     if 'description' in entity_dict and entity_dict['description'] != '':
-        search_string = 'description="{}"'.format(entity_dict['description'])
+        search_string = 'description="{0}"'.format(entity_dict['description'])
         entity = module.find_resource('operatingsystems', search_string, failsafe=True)
     # If we did not yet find a unique OS, search by name & version
     # In case of state == absent, those information might be missing, we assume that we did not find an operatingsytem to delete then
     if entity is None and 'name' in entity_dict and 'major' in entity_dict:
-        search_string = ','.join('{}="{}"'.format(key, entity_dict[key]) for key in ('name', 'major', 'minor') if key in entity_dict)
+        search_string = ','.join('{0}="{1}"'.format(key, entity_dict[key]) for key in ('name', 'major', 'minor') if key in entity_dict)
         entity = module.find_resource('operatingsystems', search_string, failsafe=True)
 
     if not entity and (module.state == 'present' or module.state == 'present_with_defaults'):
         # we actually attempt to create a new one...
         for param_name in ['major', 'family', 'password_hash']:
             if param_name not in entity_dict.keys():
-                module.fail_json(msg='{} is a required parameter to create a new operating system.'.format(param_name))
+                module.fail_json(msg='{0} is a required parameter to create a new operating system.'.format(param_name))
 
     if not module.desired_absent:
         if 'architectures' in entity_dict:
@@ -236,10 +248,10 @@ def main():
 
     parameters = entity_dict.get('parameters')
 
-    changed, operating_system = module.ensure_entity('operatingsystems', entity_dict, entity)
+    changed, operatingsystem = module.ensure_entity('operatingsystems', entity_dict, entity)
 
-    if operating_system:
-        scope = {'operatingsystem_id': operating_system['id']}
+    if operatingsystem:
+        scope = {'operatingsystem_id': operatingsystem['id']}
         changed |= module.ensure_scoped_parameters(scope, entity, parameters)
 
     module.exit_json(changed=changed)

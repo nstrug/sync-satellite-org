@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: katello_repository
@@ -24,24 +32,26 @@ short_description: Create and manage Katello repository
 description:
     - Crate and manage a Katello repository
 author: "Eric D Helms (@ehelms)"
-requirements:
-    - apypie
 options:
   name:
     description:
       - Name of the repository
     required: true
+    type: str
   product:
     description:
       - Product to which the repository lives in
     required: true
+    type: str
   label:
     description:
       - label of the repository
+    type: str
   organization:
     description:
       - Organization that the Product is in
     required: true
+    type: str
   content_type:
     description:
       - The content type of the repository (e.g. yum)
@@ -53,13 +63,16 @@ options:
       - ostree
       - puppet
       - yum
+    type: str
   url:
     description:
       - Repository URL to sync from
     required: false
+    type: str
   docker_upstream_name:
     description:
       - name of the upstream docker repository
+    type: str
   mirror_on_sync:
     description:
       - toggle "mirror on sync" where the state of the repository mirrors that of the upstream repository at sync time
@@ -74,18 +87,22 @@ options:
       - immediate
       - on_demand
     required: false
+    type: str
   gpg_key:
     description:
     - Repository GPG key
     required: false
+    type: str
   state:
     description:
       - State of the Repository
+      - C(present_with_defaults) will ensure the entity exists, but won't update existing ones
     default: present
     choices:
       - present_with_defaults
       - present
       - absent
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -123,11 +140,11 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 
-from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
 
 
 def main():
-    module = KatelloEntityApypieAnsibleModule(
+    module = KatelloEntityAnsibleModule(
         argument_spec=dict(
             product=dict(required=True),
         ),

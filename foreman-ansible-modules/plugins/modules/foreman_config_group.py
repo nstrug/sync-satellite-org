@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: foreman_config_group
@@ -25,12 +33,11 @@ description:
   - Create and Delete Foreman (Puppet) config groups using Foreman API
 author:
   - "Baptiste Agasse (@bagasse)"
-requirements:
-  - "apypie"
 options:
   name:
     description: The config group name
     required: true
+    type: str
   puppetclasses:
     description: List of puppet classes to include in this group
     required: false
@@ -39,6 +46,7 @@ options:
     description: config group presence
     default: present
     choices: ["present", "absent"]
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -57,11 +65,11 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.foreman_helper import ForemanEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import ForemanEntityAnsibleModule
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             puppetclasses=dict(type='entity_list', flat_name='puppetclass_ids'),
@@ -79,7 +87,7 @@ def main():
             # puppet classes API return puppet classes grouped by puppet module name
             puppet_classes = []
             for puppet_class in entity_dict['puppetclasses']:
-                search = 'name="{}"'.format(puppet_class)
+                search = 'name="{0}"'.format(puppet_class)
                 results = module.list_resource('puppetclasses', search)
 
                 # verify that only one puppet module is returned with only one puppet class inside
@@ -99,5 +107,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#  vim: set sts=4 ts=8 sw=4 ft=python et noro norl cin si ai :

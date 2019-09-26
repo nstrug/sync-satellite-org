@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
-
 
 DOCUMENTATION = '''
 ---
@@ -30,8 +33,6 @@ description:
   - Create and delete users in Foreman
 author:
   - "Christoffer Reijer (@ephracis) Basalt AB"
-requirements:
-  - "apypie"
 options:
   login:
     aliases:
@@ -39,23 +40,28 @@ options:
     description:
       - Name of the user
     required: true
+    type: str
   firstname:
     description:
       - First name of the user
     required: false
+    type: str
   lastname:
     description:
       - Last name of the user
     required: false
+    type: str
   mail:
     description:
       - Email address of the user
       - Required when creating a new user
     required: false
+    type: str
   description:
     description:
       - Description of the user
     required: false
+    type: str
   admin:
     description:
       - Whether or not the user is an administrator
@@ -66,28 +72,203 @@ options:
     description:
       - Password for the user
     required: false
+    type: str
   default_location:
     description:
       - The location that the user uses by default
     required: false
+    type: str
   default_organization:
     description:
       - The organizxation that the user uses by default
     required: false
+    type: str
   auth_source:
     description:
       - Authentication source where the user exists
     required: false
-    default: Internal
+    type: str
   timezone:
     description:
       - Timezone for the user
       - If blank it will use the browser timezone.
     required: false
+    type: str
+    choices:
+      - 'International Date Line West'
+      - 'American Samoa'
+      - 'Midway Island'
+      - 'Hawaii'
+      - 'Alaska'
+      - 'Pacific Time (US & Canada)'
+      - 'Tijuana'
+      - 'Arizona'
+      - 'Chihuahua'
+      - 'Mazatlan'
+      - 'Mountain Time (US & Canada)'
+      - 'Central America'
+      - 'Central Time (US & Canada)'
+      - 'Guadalajara'
+      - 'Mexico City'
+      - 'Monterrey'
+      - 'Saskatchewan'
+      - 'Bogota'
+      - 'Eastern Time (US & Canada)'
+      - 'Indiana (East)'
+      - 'Lima'
+      - 'Quito'
+      - 'Atlantic Time (Canada)'
+      - 'Caracas'
+      - 'Georgetown'
+      - 'La Paz'
+      - 'Puerto Rico'
+      - 'Santiago'
+      - 'Newfoundland'
+      - 'Brasilia'
+      - 'Buenos Aires'
+      - 'Greenland'
+      - 'Montevideo'
+      - 'Mid-Atlantic'
+      - 'Azores'
+      - 'Cape Verde Is.'
+      - 'Dublin'
+      - 'Edinburgh'
+      - 'Lisbon'
+      - 'London'
+      - 'Monrovia'
+      - 'UTC'
+      - 'Amsterdam'
+      - 'Belgrade'
+      - 'Berlin'
+      - 'Bern'
+      - 'Bratislava'
+      - 'Brussels'
+      - 'Budapest'
+      - 'Casablanca'
+      - 'Copenhagen'
+      - 'Ljubljana'
+      - 'Madrid'
+      - 'Paris'
+      - 'Prague'
+      - 'Rome'
+      - 'Sarajevo'
+      - 'Skopje'
+      - 'Stockholm'
+      - 'Vienna'
+      - 'Warsaw'
+      - 'West Central Africa'
+      - 'Zagreb'
+      - 'Zurich'
+      - 'Athens'
+      - 'Bucharest'
+      - 'Cairo'
+      - 'Harare'
+      - 'Helsinki'
+      - 'Jerusalem'
+      - 'Kaliningrad'
+      - 'Kyiv'
+      - 'Pretoria'
+      - 'Riga'
+      - 'Sofia'
+      - 'Tallinn'
+      - 'Vilnius'
+      - 'Baghdad'
+      - 'Istanbul'
+      - 'Kuwait'
+      - 'Minsk'
+      - 'Moscow'
+      - 'Nairobi'
+      - 'Riyadh'
+      - 'St. Petersburg'
+      - 'Tehran'
+      - 'Abu Dhabi'
+      - 'Baku'
+      - 'Muscat'
+      - 'Samara'
+      - 'Tbilisi'
+      - 'Volgograd'
+      - 'Yerevan'
+      - 'Kabul'
+      - 'Ekaterinburg'
+      - 'Islamabad'
+      - 'Karachi'
+      - 'Tashkent'
+      - 'Chennai'
+      - 'Kolkata'
+      - 'Mumbai'
+      - 'New Delhi'
+      - 'Sri Jayawardenepura'
+      - 'Kathmandu'
+      - 'Almaty'
+      - 'Astana'
+      - 'Dhaka'
+      - 'Urumqi'
+      - 'Rangoon'
+      - 'Bangkok'
+      - 'Hanoi'
+      - 'Jakarta'
+      - 'Krasnoyarsk'
+      - 'Novosibirsk'
+      - 'Beijing'
+      - 'Chongqing'
+      - 'Hong Kong'
+      - 'Irkutsk'
+      - 'Kuala Lumpur'
+      - 'Perth'
+      - 'Singapore'
+      - 'Taipei'
+      - 'Ulaanbaatar'
+      - 'Osaka'
+      - 'Sapporo'
+      - 'Seoul'
+      - 'Tokyo'
+      - 'Yakutsk'
+      - 'Adelaide'
+      - 'Darwin'
+      - 'Brisbane'
+      - 'Canberra'
+      - 'Guam'
+      - 'Hobart'
+      - 'Melbourne'
+      - 'Port Moresby'
+      - 'Sydney'
+      - 'Vladivostok'
+      - 'Magadan'
+      - 'New Caledonia'
+      - 'Solomon Is.'
+      - 'Srednekolymsk'
+      - 'Auckland'
+      - 'Fiji'
+      - 'Kamchatka'
+      - 'Marshall Is.'
+      - 'Wellington'
+      - 'Chatham Is.'
+      - "Nuku'alofa"
+      - 'Samoa'
+      - 'Tokelau Is.'
   locale:
     description:
       - The language locale for the user
     required: false
+    type: str
+    choices:
+      - 'ca'
+      - 'de'
+      - 'en'
+      - 'en_GB'
+      - 'es'
+      - 'fr'
+      - 'gl'
+      - 'it'
+      - 'ja'
+      - 'ko'
+      - 'nl_NL'
+      - 'pl'
+      - 'pt_BR'
+      - 'ru'
+      - 'sv_SE'
+      - 'zh_CN'
+      - 'zh_TW'
   roles:
     description:
       - List of roles assigned to the user
@@ -110,6 +291,7 @@ options:
     choices:
       - present
       - absent
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -152,7 +334,7 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 from ansible.module_utils.foreman_helper import (
-    ForemanEntityApypieAnsibleModule,
+    ForemanEntityAnsibleModule,
 )
 
 
@@ -163,20 +345,20 @@ timezone_list = [
     'Midway Island',
     'Hawaii',
     'Alaska',
-    'Pacific Time (US &amp; Canada)',
+    'Pacific Time (US & Canada)',
     'Tijuana',
     'Arizona',
     'Chihuahua',
     'Mazatlan',
-    'Mountain Time (US &amp; Canada)',
+    'Mountain Time (US & Canada)',
     'Central America',
-    'Central Time (US &amp; Canada)',
+    'Central Time (US & Canada)',
     'Guadalajara',
     'Mexico City',
     'Monterrey',
     'Saskatchewan',
     'Bogota',
-    'Eastern Time (US &amp; Canada)',
+    'Eastern Time (US & Canada)',
     'Indiana (East)',
     'Lima',
     'Quito',
@@ -306,7 +488,7 @@ timezone_list = [
     'Marshall Is.',
     'Wellington',
     'Chatham Is.',
-    'Nuku&#39;alofa',
+    "Nuku'alofa",
     'Samoa',
     'Tokelau Is.',
 ]
@@ -334,7 +516,7 @@ locale_list = [
 
 
 def main():
-    module = ForemanEntityApypieAnsibleModule(
+    module = ForemanEntityAnsibleModule(
         entity_spec=dict(
             login=dict(required=True, aliases=['name']),
             firstname=dict(required=False),
@@ -358,7 +540,7 @@ def main():
 
     module.connect()
 
-    search = 'login="{}"'.format(entity_dict['name'])
+    search = 'login="{0}"'.format(entity_dict['login'])
     entity = module.find_resource('users', search, failsafe=True)
 
     if not module.desired_absent:

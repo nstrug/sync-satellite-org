@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
-
 
 DOCUMENTATION = '''
 ---
@@ -30,18 +33,18 @@ description:
   - "Manage Foreman Setting Entities"
 author:
   - "Matthias M Dellweg (@mdellweg) ATIX AG"
-requirements:
-  - apypie
 options:
   name:
     description:
       - Name of the Setting
     required: true
+    type: str
   value:
     description:
       - value to set the Setting to
       - if missing, reset to default
     required: false
+    type: raw
 extends_documentation_fragment: foreman
 '''
 
@@ -65,10 +68,12 @@ EXAMPLES = '''
 RETURN = '''
 foreman_setting:
   description: Created / Updated state of the setting
+  returned: success
+  type: dict
 '''
 
 
-from ansible.module_utils.foreman_helper import ForemanApypieAnsibleModule, parameter_value_to_str
+from ansible.module_utils.foreman_helper import ForemanAnsibleModule, parameter_value_to_str
 
 
 entity_spec = {
@@ -78,7 +83,7 @@ entity_spec = {
 
 
 def main():
-    module = ForemanApypieAnsibleModule(
+    module = ForemanAnsibleModule(
         argument_spec=dict(
             name=dict(required=True),
             value=dict(type='raw'),

@@ -18,6 +18,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 DOCUMENTATION = '''
 ---
 module: katello_lifecycle_environment
@@ -27,26 +35,29 @@ description:
 author:
   - "Andrew Kofink (@akofink)"
   - "Baptiste Agasse (@bagasse)"
-requirements:
-    - "apypie"
 options:
   name:
     description:
       - Name of the lifecycle environment
     required: true
+    type: str
   label:
     description:
       - Label of the lifecycle environment. This field cannot be updated.
+    type: str
   description:
     description:
       - Description of the lifecycle environment
+    type: str
   organization:
     description:
       - Organization name that the lifecycle environment is in
     required: true
+    type: str
   prior:
     description:
       - Name of the parent lifecycle environment
+    type: str
   state:
     description:
       - Whether the lifecycle environment should be present or absent on the server
@@ -54,6 +65,7 @@ options:
     choices:
       - absent
       - present
+    type: str
 extends_documentation_fragment: foreman
 '''
 
@@ -73,11 +85,11 @@ EXAMPLES = '''
 
 RETURN = '''# '''
 
-from ansible.module_utils.foreman_helper import KatelloEntityApypieAnsibleModule
+from ansible.module_utils.foreman_helper import KatelloEntityAnsibleModule
 
 
 def main():
-    module = KatelloEntityApypieAnsibleModule(
+    module = KatelloEntityAnsibleModule(
         entity_spec=dict(
             name=dict(required=True),
             label=dict(),

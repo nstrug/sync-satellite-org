@@ -17,7 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
@@ -30,18 +34,18 @@ description:
   - "Gather facts about Foreman resources"
 author:
   - "Sean O'Keeffe (@sean797)"
-requirements:
-  - apypie
 options:
   resource:
     description:
       - Resource to search
       - Set to an invalid choice like I(foo) see all available options.
     required: true
+    type: str
   search:
     description:
       - Search query to use
       - If None, all resources are returned
+    type: str
   full_details:
     description:
       - If C(True) all details about the found resources are returned
@@ -73,6 +77,17 @@ EXAMPLES = '''
 - debug:
     var: item.name
   with_items: result.resources
+
+- name: "Read all Organizations with full details"
+  foreman_search_facts:
+    username: "admin"
+    password: "changeme"
+    server_url: "https://foreman.example.com"
+    resource: organizations
+    full_details: true
+  register: result
+- debug:
+    var: result.resources
 '''
 
 RETURN = '''
@@ -82,12 +97,12 @@ resources:
   type: list
 '''
 
-from ansible.module_utils.foreman_helper import ForemanApypieAnsibleModule
+from ansible.module_utils.foreman_helper import ForemanAnsibleModule
 
 
 def main():
 
-    module = ForemanApypieAnsibleModule(
+    module = ForemanAnsibleModule(
         argument_spec=dict(
             resource=dict(type='str', required=True),
             search=dict(default=""),
@@ -105,8 +120,8 @@ def main():
 
     if module_params['full_details']:
         resources = []
-        for res in response:
-            resources.append(module.show_resource(resource, res['id']))
+        for found_resource in response:
+            resources.append(module.show_resource(resource, found_resource['id']))
     else:
         resources = response
 
