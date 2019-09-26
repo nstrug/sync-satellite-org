@@ -1,0 +1,6 @@
+---
+- name: Create Locations Test Playbook
+  template:
+    src: "templates/test-locations.yml.j2"
+    dest: "{{ output_dir }}/test-locations.yml"
+  delegate_to: localhost

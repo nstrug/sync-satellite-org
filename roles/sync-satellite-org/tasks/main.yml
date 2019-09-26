@@ -1,6 +1,7 @@
 ---
 - include_tasks: output_dir.yml
-- include_tasks: create_playbook.yml
+- include_tasks: copy_files.yml
+- include_tasks: test_locations_playbook.yml
 - include_tasks: locations.yml
 - include_tasks: domains.yml
 - include_tasks: subnets.yml
@@ -12,6 +13,7 @@
 - include_tasks: templates.yml
 - include_tasks: operating_systems.yml
 - include_tasks: hostgroups.yml
+- include_tasks: create_playbook.yml
 
 
 
